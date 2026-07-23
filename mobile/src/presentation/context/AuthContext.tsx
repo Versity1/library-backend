@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
+  register: (userData: any) => Promise<User>;
   logout: () => Promise<void>;
   setUserRoleOverride?: (role: any) => void;
 }
@@ -45,13 +46,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return loggedUser;
   };
 
+  const register = async (userData: any): Promise<User> => {
+    await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData);
+    // Auto-login after successful registration
+    return login(userData.email, userData.password);
+  };
+
   const logout = async () => {
     await TokenStorage.clearAuth();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

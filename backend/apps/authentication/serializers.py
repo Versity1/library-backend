@@ -20,3 +20,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         user_serializer = UserSerializer(self.user)
         data['user'] = user_serializer.data
         return data
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'first_name', 'last_name', 'student_staff_id', 'role', 'department']
+
+    def create(self, validated_data):
+        # We use email as the username since USERNAME_FIELD is 'email', but Django's AbstractUser requires username.
+        # Let's set username to email.
+        validated_data['username'] = validated_data['email']
+        user = User.objects.create_user(**validated_data)
+        return user

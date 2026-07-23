@@ -24,6 +24,7 @@ console.log('[API] Base URL:', API_BASE_URL);
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login/',
+    REGISTER: '/auth/register/',
     REFRESH: '/auth/refresh/',
     ME: '/auth/me/',
   },
