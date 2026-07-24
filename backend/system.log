@@ -111,3 +111,13 @@ INFO 2026-07-24 02:03:55,227 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1
 INFO 2026-07-24 02:03:55,231 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
 INFO 2026-07-24 02:05:17,599 autoreload C:\Users\HomePC\Desktop\library\backend\apps\catalog\views.py changed, reloading.
 INFO 2026-07-24 02:05:20,017 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 02:06:04,870 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:06:04,877 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:06:05,613 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:06:05,617 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:06:05,960 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:06:05,960 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:06:56,346 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 919
+INFO 2026-07-24 02:06:56,514 basehttp "GET /api/v1/transactions/overdue/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:06:56,518 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
+INFO 2026-07-24 02:07:01,966 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
