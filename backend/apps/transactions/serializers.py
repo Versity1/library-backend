@@ -26,3 +26,6 @@ class CheckoutRequestSerializer(serializers.Serializer):
 
 class ReturnRequestSerializer(serializers.Serializer):
     qr_code_id = serializers.CharField(required=True)
+
+class RenewRequestSerializer(serializers.Serializer):
+    transaction_id = serializers.UUIDField(required=True)

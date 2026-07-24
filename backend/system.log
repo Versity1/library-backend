@@ -1,0 +1,113 @@
+INFO 2026-07-24 01:25:27,718 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 01:25:44,054 autoreload C:\Users\HomePC\Desktop\library\backend\apps\analytics\views.py changed, reloading.
+INFO 2026-07-24 01:25:45,725 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 01:25:53,736 autoreload C:\Users\HomePC\Desktop\library\backend\apps\analytics\urls.py changed, reloading.
+INFO 2026-07-24 01:25:55,083 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 01:26:10,571 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 291
+INFO 2026-07-24 01:29:16,322 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 291
+INFO 2026-07-24 01:29:30,446 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1667
+INFO 2026-07-24 01:29:58,660 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\views.py changed, reloading.
+INFO 2026-07-24 01:30:00,155 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 01:30:18,656 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 291
+INFO 2026-07-24 01:30:23,241 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1617
+INFO 2026-07-24 01:31:04,528 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+WARNING 2026-07-24 01:31:08,147 log Not Found: /api/v1/analytics/policies/
+WARNING 2026-07-24 01:31:08,148 basehttp "GET /api/v1/analytics/policies/ HTTP/1.1" 404 4520
+INFO 2026-07-24 01:31:11,740 basehttp "GET /api/v1/analytics/system/logs/ HTTP/1.1" 200 1524
+INFO 2026-07-24 01:36:01,531 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 291
+INFO 2026-07-24 01:36:05,529 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1617
+INFO 2026-07-24 01:36:09,042 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+WARNING 2026-07-24 01:36:21,908 log Not Found: /api/v1/analytics/policies/
+WARNING 2026-07-24 01:36:21,908 basehttp "GET /api/v1/analytics/policies/ HTTP/1.1" 404 4520
+INFO 2026-07-24 01:36:25,261 basehttp "GET /api/v1/analytics/system/logs/ HTTP/1.1" 200 2089
+INFO 2026-07-24 01:44:05,504 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 911
+INFO 2026-07-24 01:44:05,602 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 671
+INFO 2026-07-24 01:44:05,603 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 01:44:22,748 basehttp "OPTIONS /api/v1/reservations/my-reservations/ HTTP/1.1" 200 0
+INFO 2026-07-24 01:44:22,750 basehttp "OPTIONS /api/v1/fines/my-fines/ HTTP/1.1" 200 0
+INFO 2026-07-24 01:44:22,822 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 522
+INFO 2026-07-24 01:44:22,826 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 671
+INFO 2026-07-24 01:44:22,834 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 444
+INFO 2026-07-24 01:44:32,621 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 444
+INFO 2026-07-24 01:44:39,970 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 522
+INFO 2026-07-24 01:44:39,974 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 671
+INFO 2026-07-24 01:44:39,982 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 444
+INFO 2026-07-24 01:47:23,587 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 671
+INFO 2026-07-24 01:47:23,598 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 01:47:27,870 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 911
+INFO 2026-07-24 01:47:27,924 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 671
+INFO 2026-07-24 01:47:27,927 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 01:47:31,404 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 671
+INFO 2026-07-24 01:47:31,405 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 522
+INFO 2026-07-24 01:47:31,412 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 444
+WARNING 2026-07-24 01:48:43,934 log Not Found: /api/v1/analytics/policies/
+WARNING 2026-07-24 01:48:43,934 basehttp "GET /api/v1/analytics/policies/ HTTP/1.1" 404 4520
+INFO 2026-07-24 01:48:45,063 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 291
+INFO 2026-07-24 01:48:46,768 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+WARNING 2026-07-24 01:48:50,678 log Not Found: /api/v1/analytics/policies/
+WARNING 2026-07-24 01:48:50,679 basehttp "GET /api/v1/analytics/policies/ HTTP/1.1" 404 4520
+INFO 2026-07-24 01:48:54,074 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1617
+INFO 2026-07-24 01:48:55,665 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 291
+INFO 2026-07-24 01:48:57,088 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1617
+INFO 2026-07-24 01:48:58,480 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+WARNING 2026-07-24 01:48:59,799 log Not Found: /api/v1/analytics/policies/
+WARNING 2026-07-24 01:48:59,800 basehttp "GET /api/v1/analytics/policies/ HTTP/1.1" 404 4520
+INFO 2026-07-24 01:49:01,324 basehttp "GET /api/v1/analytics/system/logs/ HTTP/1.1" 200 5238
+INFO 2026-07-24 01:50:40,474 basehttp "GET /api/v1/analytics/system/logs/ HTTP/1.1" 200 5337
+INFO 2026-07-24 01:51:32,532 basehttp "GET /api/v1/analytics/system/logs/ HTTP/1.1" 200 5436
+INFO 2026-07-24 01:51:33,291 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 671
+INFO 2026-07-24 01:51:33,292 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+WARNING 2026-07-24 01:52:03,590 log Unauthorized: /api/v1/analytics/system/backup/
+WARNING 2026-07-24 01:52:03,590 basehttp "GET /api/v1/analytics/system/backup/ HTTP/1.1" 401 5168
+INFO 2026-07-24 01:52:03,900 basehttp "GET /static/rest_framework/css/bootstrap-tweaks.css HTTP/1.1" 200 3426
+INFO 2026-07-24 01:52:03,916 basehttp "GET /static/rest_framework/css/prettify.css HTTP/1.1" 200 817
+INFO 2026-07-24 01:52:03,938 basehttp "GET /static/rest_framework/css/default.css HTTP/1.1" 200 1152
+INFO 2026-07-24 01:52:03,960 basehttp "GET /static/rest_framework/css/bootstrap.min.css HTTP/1.1" 200 121457
+INFO 2026-07-24 01:52:03,978 basehttp "GET /static/rest_framework/js/csrf.js HTTP/1.1" 200 1793
+INFO 2026-07-24 01:52:03,999 basehttp "GET /static/rest_framework/js/default.js HTTP/1.1" 200 1268
+INFO 2026-07-24 01:52:04,003 basehttp "GET /static/rest_framework/js/bootstrap.min.js HTTP/1.1" 200 39680
+INFO 2026-07-24 01:52:04,020 basehttp "GET /static/rest_framework/js/load-ajax-form.js HTTP/1.1" 200 59
+INFO 2026-07-24 01:52:04,041 basehttp "GET /static/rest_framework/img/grid.png HTTP/1.1" 200 1458
+INFO 2026-07-24 01:52:04,059 basehttp "GET /static/rest_framework/js/prettify-min.js HTTP/1.1" 200 13632
+INFO 2026-07-24 01:52:04,088 basehttp "GET /static/rest_framework/js/jquery-3.7.1.min.js HTTP/1.1" 200 87533
+INFO 2026-07-24 01:52:04,092 basehttp "GET /static/rest_framework/js/ajax-form.js HTTP/1.1" 200 3796
+INFO 2026-07-24 01:52:40,358 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 291
+INFO 2026-07-24 01:53:51,577 autoreload C:\Users\HomePC\Desktop\library\backend\apps\analytics\views.py changed, reloading.
+INFO 2026-07-24 01:53:53,090 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 01:54:54,113 autoreload C:\Users\HomePC\Desktop\library\backend\apps\analytics\views.py changed, reloading.
+INFO 2026-07-24 01:54:55,643 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 01:57:33,127 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 01:57:42,010 basehttp "OPTIONS /api/v1/catalog/books/?search= HTTP/1.1" 200 0
+INFO 2026-07-24 01:57:42,012 basehttp "OPTIONS /api/v1/transactions/my-loans/ HTTP/1.1" 200 0
+INFO 2026-07-24 01:57:42,099 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 671
+INFO 2026-07-24 01:57:42,110 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 01:57:43,120 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 671
+INFO 2026-07-24 01:57:43,127 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 01:57:43,490 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 291
+INFO 2026-07-24 01:57:52,639 basehttp "GET /api/v1/analytics/report/pdf/ HTTP/1.1" 200 1670
+INFO 2026-07-24 01:58:36,790 basehttp "GET /admin/ HTTP/1.1" 200 14036
+INFO 2026-07-24 01:59:01,555 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1617
+INFO 2026-07-24 01:59:39,462 basehttp "PATCH /api/v1/auth/admin/users/c988a931-02ed-46d3-80e8-4e62a52ab53d/ HTTP/1.1" 200 193
+INFO 2026-07-24 01:59:39,519 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-24 01:59:50,951 basehttp "GET /admin/authentication/user/ HTTP/1.1" 200 22433
+INFO 2026-07-24 01:59:51,021 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-07-24 02:00:30,802 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-24 02:00:30,947 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:00:30,951 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:03:00,440 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:03:00,476 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:03:01,879 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:03:01,889 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:03:17,820 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:03:17,822 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:03:18,618 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:03:18,623 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:03:18,752 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:03:18,756 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:03:50,887 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:03:50,909 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-24 02:03:50,918 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-24 02:03:55,227 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 02:03:55,231 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 02:05:17,599 autoreload C:\Users\HomePC\Desktop\library\backend\apps\catalog\views.py changed, reloading.
+INFO 2026-07-24 02:05:20,017 autoreload Watching for file changes with StatReloader

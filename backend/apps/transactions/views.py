@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Transaction, TransactionStatus
-from .serializers import TransactionSerializer, CheckoutRequestSerializer, ReturnRequestSerializer
+from .serializers import TransactionSerializer, CheckoutRequestSerializer, ReturnRequestSerializer, RenewRequestSerializer
 from apps.authentication.models import User
 from apps.authentication.permissions import IsLibrarian
 from apps.catalog.models import BookCopy, BookCopyStatus
@@ -166,3 +166,40 @@ class OverdueLoansView(generics.ListAPIView):
             status__in=[TransactionStatus.BORROWED, TransactionStatus.OVERDUE],
             due_date__lt=now
         ).order_by('due_date')
+
+class RenewView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = RenewRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        transaction_id = serializer.validated_data['transaction_id']
+
+        try:
+            loan = Transaction.objects.get(id=transaction_id, user=request.user)
+        except Transaction.DoesNotExist:
+            return Response({'error': 'Active loan not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if loan.status != TransactionStatus.BORROWED:
+            return Response({'error': 'Only currently borrowed items can be renewed.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check max renewals (assume max 2 renewals)
+        policy = InstitutionPolicy.objects.filter(role=loan.user.role).first()
+        max_renewals = policy.max_borrow_limit if policy else 2  # default 2 for now, ideally we have a specific field
+        if loan.renewed_count >= 2:
+            return Response({'error': 'Maximum number of renewals reached for this item.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check for outstanding fines
+        unpaid_fines_exist = Fine.objects.filter(user=request.user, status=FineStatus.UNPAID).exists()
+        if unpaid_fines_exist:
+            return Response({'error': 'Cannot renew with outstanding unpaid fines.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Add days
+        loan_days = policy.default_loan_days if policy else 14
+        loan.due_date = loan.due_date + timedelta(days=loan_days)
+        loan.renewed_count += 1
+        loan.save()
+
+        return Response(TransactionSerializer(loan).data, status=status.HTTP_200_OK)

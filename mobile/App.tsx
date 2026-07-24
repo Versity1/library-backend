@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
-import { StatusBar, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { StatusBar, View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/presentation/context/AuthContext';
 import { Header } from './src/presentation/components/Header';
 import { AuthContainer } from './src/presentation/screens/auth/AuthContainer';
 import { SmartCatalogScreen } from './src/presentation/screens/student/SmartCatalogScreen';
+import { StudentBooksScreen } from './src/presentation/screens/student/StudentBooksScreen';
 import { FinesAndPaymentsScreen } from './src/presentation/screens/student/FinesAndPaymentsScreen';
+import { StudentProfileScreen } from './src/presentation/screens/student/StudentProfileScreen';
 import { OperationsDashboardScreen } from './src/presentation/screens/librarian/OperationsDashboardScreen';
-import { QRCheckoutScannerScreen } from './src/presentation/screens/librarian/QRCheckoutScannerScreen';
+import { LibrarianInventoryScreen } from './src/presentation/screens/librarian/LibrarianInventoryScreen';
+import { ScannerScreen } from './src/presentation/screens/shared/ScannerScreen';
 import { ReservationManagementScreen } from './src/presentation/screens/librarian/ReservationManagementScreen';
 import { StrategicOverviewScreen } from './src/presentation/screens/admin/StrategicOverviewScreen';
 import { InstitutionPoliciesScreen } from './src/presentation/screens/admin/InstitutionPoliciesScreen';
-import { BookOpen, CreditCard, LayoutDashboard, QrCode, Clock, TrendingUp, Settings, Search, Bell } from 'lucide-react-native';
+import { AdminUserManagementScreen } from './src/presentation/screens/admin/AdminUserManagementScreen';
+import { AdminSystemSettingsScreen } from './src/presentation/screens/admin/AdminSystemSettingsScreen';
+import { BookOpen, CreditCard, LayoutDashboard, QrCode, Clock, TrendingUp, Settings, Search, Bell, User, Users, ShieldCheck } from 'lucide-react-native';
 
 interface TabBtnProps {
   active: boolean;
@@ -34,27 +39,30 @@ const TabBtn: React.FC<TabBtnProps> = ({ active, label, icon, onPress, isLight }
 
 const MainApp: React.FC = () => {
   const { user, logout } = useAuth();
-  const [studentTab, setStudentTab] = useState<'SEARCH' | 'BOOKS' | 'SCAN' | 'ALERTS' | 'SETTINGS'>('SEARCH');
+  const [studentTab, setStudentTab] = useState<'SEARCH' | 'BOOKS' | 'SCAN' | 'ALERTS' | 'PROFILE'>('SEARCH');
   const [librarianTab, setLibrarianTab] = useState<'SEARCH' | 'BOOKS' | 'SCAN' | 'ALERTS' | 'SETTINGS'>('SEARCH');
-  const [adminTab, setAdminTab] = useState<'OVERVIEW' | 'POLICIES'>('OVERVIEW');
+  const [adminTab, setAdminTab] = useState<'OVERVIEW' | 'POLICIES' | 'USERS' | 'BOOKS' | 'SYSTEM'>('OVERVIEW');
 
   if (!user) {
     return <AuthContainer />;
   }
 
-  const isLightMode = user.role === 'STUDENT' || user.role === 'LIBRARIAN';
+  const isLightMode = true;
 
   const renderStudentContent = () => {
     switch (studentTab) {
+      case 'BOOKS': return <StudentBooksScreen />;
+      case 'SCAN': return <ScannerScreen />;
       case 'ALERTS': return <FinesAndPaymentsScreen />;
-      case 'SEARCH': default: return <SmartCatalogScreen />;
-      // Books, Scan, Settings are placeholders for now that just render the catalog
+      case 'PROFILE': return <StudentProfileScreen />;
+      case 'SEARCH': default: return <SmartCatalogScreen onNavigateScan={() => setStudentTab('SCAN')} />;
     }
   };
 
   const renderLibrarianContent = () => {
     switch (librarianTab) {
-      case 'SCAN': return <QRCheckoutScannerScreen />;
+      case 'BOOKS': return <LibrarianInventoryScreen />;
+      case 'SCAN': return <ScannerScreen />;
       case 'ALERTS': return <ReservationManagementScreen />;
       case 'SEARCH': default: return (
         <OperationsDashboardScreen
@@ -68,11 +76,14 @@ const MainApp: React.FC = () => {
   const renderAdminContent = () => {
     switch (adminTab) {
       case 'POLICIES': return <InstitutionPoliciesScreen />;
+      case 'USERS': return <AdminUserManagementScreen />;
+      case 'BOOKS': return <LibrarianInventoryScreen />;
+      case 'SYSTEM': return <AdminSystemSettingsScreen />;
       case 'OVERVIEW': default: return <StrategicOverviewScreen />;
     }
   };
 
-  const activeLightTab = user.role === 'STUDENT' ? studentTab : librarianTab;
+  const activeLightTab = user.role === 'STUDENT' ? studentTab : user.role === 'LIBRARIAN' ? librarianTab : adminTab;
   const setLightTab = user.role === 'STUDENT' ? setStudentTab : setLibrarianTab;
 
   return (
@@ -83,7 +94,7 @@ const MainApp: React.FC = () => {
         title={
           user.role === 'STUDENT' ? 'Smart Catalog & Services'
             : user.role === 'LIBRARIAN' ? 'Operations Portal'
-            : 'Strategic Command'
+            : 'Admin Dashboard'
         }
         subtitle={`Welcome back, ${user.name}`}
         onRoleSwitchClick={logout}
@@ -96,7 +107,7 @@ const MainApp: React.FC = () => {
       </View>
 
       <View style={isLightMode ? s.navBarLight : s.navBar}>
-        {isLightMode && (
+        {isLightMode && user.role === 'LIBRARIAN' && (
           <>
             <TabBtn isLight active={activeLightTab === 'SEARCH'} label="Search" onPress={() => setLightTab('SEARCH')}
               icon={<Search size={22} color={activeLightTab === 'SEARCH' ? '#0F172A' : '#94A3B8'} />} />
@@ -110,14 +121,34 @@ const MainApp: React.FC = () => {
               icon={<Settings size={22} color={activeLightTab === 'SETTINGS' ? '#0F172A' : '#94A3B8'} />} />
           </>
         )}
-
-        {user.role === 'ADMIN' && (
+        {isLightMode && user.role === 'STUDENT' && (
           <>
-            <TabBtn active={adminTab === 'OVERVIEW'} label="Strategic Overview" onPress={() => setAdminTab('OVERVIEW')}
-              icon={<TrendingUp size={20} color={adminTab === 'OVERVIEW' ? '#14B8A6' : '#64748B'} />} />
-            <TabBtn active={adminTab === 'POLICIES'} label="Policy Rules" onPress={() => setAdminTab('POLICIES')}
-              icon={<Settings size={20} color={adminTab === 'POLICIES' ? '#14B8A6' : '#64748B'} />} />
+            <TabBtn isLight active={studentTab === 'SEARCH'} label="Search" onPress={() => setStudentTab('SEARCH')}
+              icon={<Search size={22} color={studentTab === 'SEARCH' ? '#0F172A' : '#94A3B8'} />} />
+            <TabBtn isLight active={studentTab === 'BOOKS'} label="Books" onPress={() => setStudentTab('BOOKS')}
+              icon={<BookOpen size={22} color={studentTab === 'BOOKS' ? '#0F172A' : '#94A3B8'} />} />
+            <TabBtn isLight active={studentTab === 'SCAN'} label="Scan" onPress={() => setStudentTab('SCAN')}
+              icon={<QrCode size={22} color={studentTab === 'SCAN' ? '#0F172A' : '#94A3B8'} />} />
+            <TabBtn isLight active={studentTab === 'ALERTS'} label="Alerts" onPress={() => setStudentTab('ALERTS')}
+              icon={<Bell size={22} color={studentTab === 'ALERTS' ? '#0F172A' : '#94A3B8'} />} />
+            <TabBtn isLight active={studentTab === 'PROFILE'} label="Profile" onPress={() => setStudentTab('PROFILE')}
+              icon={<User size={22} color={studentTab === 'PROFILE' ? '#0F172A' : '#94A3B8'} />} />
           </>
+        )}
+
+        {isLightMode && user.role === 'ADMIN' && (
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <TabBtn isLight active={activeLightTab === 'OVERVIEW'} label="Dashboard" onPress={() => setAdminTab('OVERVIEW')}
+              icon={<TrendingUp size={22} color={activeLightTab === 'OVERVIEW' ? '#0F172A' : '#94A3B8'} />} />
+            <TabBtn isLight active={activeLightTab === 'USERS'} label="Users" onPress={() => setAdminTab('USERS')}
+              icon={<Users size={22} color={activeLightTab === 'USERS' ? '#0F172A' : '#94A3B8'} />} />
+            <TabBtn isLight active={activeLightTab === 'BOOKS'} label="Books" onPress={() => setAdminTab('BOOKS')}
+              icon={<BookOpen size={22} color={activeLightTab === 'BOOKS' ? '#0F172A' : '#94A3B8'} />} />
+            <TabBtn isLight active={activeLightTab === 'POLICIES'} label="Policies" onPress={() => setAdminTab('POLICIES')}
+              icon={<ShieldCheck size={22} color={activeLightTab === 'POLICIES' ? '#0F172A' : '#94A3B8'} />} />
+            <TabBtn isLight active={activeLightTab === 'SYSTEM'} label="System" onPress={() => setAdminTab('SYSTEM')}
+              icon={<Settings size={22} color={activeLightTab === 'SYSTEM' ? '#0F172A' : '#94A3B8'} />} />
+          </View>
         )}
       </View>
     </SafeAreaView>

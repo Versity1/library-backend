@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal, Alert, StyleSheet } from 'react-native';
-import { Search, Mic, Bookmark, SlidersHorizontal, BookOpen } from 'lucide-react-native';
+import { Search, Mic, Bookmark, SlidersHorizontal, BookOpen, QrCode } from 'lucide-react-native';
 import { Book, Transaction } from '../../../domain/types';
 import { apiClient } from '../../../core/utils/http';
 import { API_ENDPOINTS } from '../../../core/constants/api';
 
-export const SmartCatalogScreen: React.FC = () => {
+interface SmartCatalogScreenProps {
+  onNavigateScan?: () => void;
+}
+
+export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNavigateScan }) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [myLoans, setMyLoans] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [reserving, setReserving] = useState(false);
@@ -18,13 +21,12 @@ export const SmartCatalogScreen: React.FC = () => {
   useEffect(() => {
     fetchBooks();
     fetchLoans();
-  }, [searchQuery, activeCategory]);
+  }, [searchQuery]);
 
   const fetchBooks = async () => {
     setLoading(true);
     try {
       let url = `${API_ENDPOINTS.CATALOG.BOOKS}?search=${encodeURIComponent(searchQuery)}`;
-      if (activeCategory) url += `&category=${encodeURIComponent(activeCategory)}`;
       const res = await apiClient.get(url);
       setBooks(res.data.results || res.data);
     } catch (err) {
@@ -56,7 +58,6 @@ export const SmartCatalogScreen: React.FC = () => {
     }
   };
 
-  const categories = ['Computer Science', 'Design Systems', 'Economics', 'Mathematics'];
   const activeLoan = myLoans.length > 0 ? myLoans[0] : null;
 
   return (
@@ -65,61 +66,73 @@ export const SmartCatalogScreen: React.FC = () => {
         <View style={s.searchRow}>
           <TextInput 
             style={s.searchInput} 
-            placeholder="AI-powered Search (e.g., 'Quantum Physics')" 
+            placeholder="Search catalog..." 
             placeholderTextColor="#64748B" 
             value={searchQuery} 
             onChangeText={setSearchQuery} 
           />
-          <Mic size={20} color="#0F172A" />
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.pillScroll}>
-          {categories.map((cat) => (
-            <TouchableOpacity 
-              key={cat} 
-              onPress={() => setActiveCategory(activeCategory === cat ? null : cat)} 
-              style={[s.pill, activeCategory === cat && s.pillActive]}
-            >
-              <Text style={[s.pillText, activeCategory === cat && s.pillTextActive]}>{cat}</Text>
+          {onNavigateScan && (
+            <TouchableOpacity onPress={onNavigateScan}>
+              <QrCode size={20} color="#0F172A" />
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+          )}
+        </View>
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
         
         {/* Continue Reading Section */}
         {activeLoan && (
-          <View style={{ marginBottom: 32 }}>
-            <View style={s.sectionHeader}>
-              <Text style={s.sectionTitle}>Continue Reading</Text>
-              <TouchableOpacity><Text style={s.viewAllLink}>View All</Text></TouchableOpacity>
-            </View>
-            
+          <View style={s.continueBox}>
+            <Text style={s.sectionTitle}>Continue Reading</Text>
             <View style={s.readingCard}>
               <View style={s.readingCoverBox}>
-                <BookOpen size={24} color="#94A3B8" />
+                {activeLoan.cover_image_url ? (
+                  <Image source={{ uri: activeLoan.cover_image_url }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                ) : (
+                  <BookOpen size={24} color="#94A3B8" />
+                )}
               </View>
-              <View style={{ flex: 1, paddingLeft: 16 }}>
-                <Text style={s.readingTitle} numberOfLines={2}>{activeLoan.book_title}</Text>
-                <Text style={s.readingAuthor}>Borrowed: {new Date(activeLoan.checkout_date).toLocaleDateString()}</Text>
-                
+              <View style={{ flex: 1, marginLeft: 16, justifyContent: 'center' }}>
+                <Text style={s.readingTitle} numberOfLines={1}>{activeLoan.book_title}</Text>
+                <Text style={s.readingAuthor}>{activeLoan.author}</Text>
                 <View style={s.progressMeta}>
-                  <Text style={s.dueText}>Due on {new Date(activeLoan.due_date).toLocaleDateString()}</Text>
-                  <Text style={s.progressPct}>65%</Text>
-                </View>
-                <View style={s.progressBarBg}>
-                  <View style={[s.progressBarFill, { width: '65%' }]} />
+                  <View style={s.progressBarBg}>
+                    <View style={[s.progressBarFill, { width: '45%' }]} />
+                  </View>
+                  <Text style={s.progressPct}>45%</Text>
                 </View>
               </View>
             </View>
           </View>
         )}
 
-        {/* Recommended for You Section */}
+        {/* Smart Recommendations */}
+        {!searchQuery && books.length > 0 && (
+          <View style={{ marginBottom: 24 }}>
+            <View style={s.sectionHeader}>
+              <Text style={s.sectionTitle}>Recommended for You</Text>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16 }}>
+              {books.slice(0, 5).map(book => (
+                <TouchableOpacity key={`rec_${book.id}`} style={s.recCard} onPress={() => setSelectedBook(book)}>
+                  <View style={s.recCoverBox}>
+                    {book.cover_image_url ? (
+                      <Image source={{ uri: book.cover_image_url }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                    ) : (
+                      <BookOpen size={32} color="#94A3B8" />
+                    )}
+                  </View>
+                  <Text style={s.recTitle} numberOfLines={1}>{book.title}</Text>
+                  <Text style={s.recAuthor} numberOfLines={1}>{book.author}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
         <View style={s.sectionHeader}>
-          <Text style={s.sectionTitle}>Recommended for You</Text>
-          <TouchableOpacity><SlidersHorizontal size={18} color="#0F172A" /></TouchableOpacity>
+          <Text style={s.sectionTitle}>{searchQuery ? 'Search Results' : 'Explore Catalog'}</Text>
         </View>
 
         {loading ? (
@@ -146,7 +159,7 @@ export const SmartCatalogScreen: React.FC = () => {
                     <Bookmark size={20} color="#0F172A" />
                   </View>
                   
-                  <Text style={s.cardTitle} numberOfLines={2}>{book.title}</Text>
+                  <Text style={s.cardTitle} numberOfLines={1}>{book.title}</Text>
                   <Text style={s.cardAuthor}>{book.author}</Text>
                   
                   <View style={{ flex: 1, justifyContent: 'flex-end' }}>
@@ -196,11 +209,6 @@ const s = StyleSheet.create({
   headerArea: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
   searchRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F1F5F9', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 12 },
   searchInput: { flex: 1, color: '#0F172A', fontSize: 15 },
-  pillScroll: { paddingVertical: 16, gap: 10 },
-  pill: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#CBD5E1', backgroundColor: '#F1F5F9' },
-  pillActive: { backgroundColor: '#020617', borderColor: '#020617' },
-  pillText: { fontSize: 13, fontWeight: '600', color: '#475569' },
-  pillTextActive: { color: '#FFF' },
   
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   sectionTitle: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
@@ -210,11 +218,17 @@ const s = StyleSheet.create({
   readingCoverBox: { width: 80, height: 110, backgroundColor: '#E2E8F0', borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   readingTitle: { fontSize: 16, fontWeight: '800', color: '#0F172A', marginBottom: 4 },
   readingAuthor: { fontSize: 13, color: '#64748B', marginBottom: 16 },
-  progressMeta: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
+  progressMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
   dueText: { fontSize: 11, color: '#475569', fontWeight: '600' },
   progressPct: { fontSize: 11, color: '#0F172A', fontWeight: '800' },
-  progressBarBg: { height: 6, backgroundColor: '#E2E8F0', borderRadius: 999 },
+  progressBarBg: { flex: 1, height: 6, backgroundColor: '#E2E8F0', borderRadius: 999, marginRight: 12 },
   progressBarFill: { height: 6, backgroundColor: '#1E1B4B', borderRadius: 999 },
+  
+  continueBox: { marginBottom: 24 },
+  recCard: { width: 120 },
+  recCoverBox: { width: 120, height: 160, backgroundColor: '#F1F5F9', borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  recTitle: { fontSize: 13, fontWeight: '800', color: '#0F172A', marginBottom: 2 },
+  recAuthor: { fontSize: 11, color: '#64748B' },
   
   bookList: { gap: 16 },
   bookCard: { backgroundColor: '#FFF', borderRadius: 20, padding: 16, flexDirection: 'row', borderWidth: 1, borderColor: '#E2E8F0', elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8 },

@@ -7,10 +7,35 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'name', 'role', 'department', 'student_staff_id', 'borrowing_limit', 'created_at']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'name', 'role', 'department', 'student_staff_id', 'borrowing_limit', 'is_active', 'created_at']
 
     def get_name(self, obj):
         return obj.get_full_name() or obj.username
+
+class AdminUserCreateUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, style={'input_type': 'password'})
+
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'first_name', 'last_name', 'student_staff_id', 'role', 'department', 'is_active', 'borrowing_limit']
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        validated_data['username'] = validated_data['email']
+        user = User.objects.create(**validated_data)
+        if password:
+            user.set_password(password)
+            user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'

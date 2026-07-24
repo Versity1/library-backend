@@ -32,11 +32,13 @@ export const API_ENDPOINTS = {
     BOOKS: '/catalog/books/',
     CATEGORIES: '/catalog/categories/',
     COPIES: '/catalog/copies/',
+    SCAN: '/catalog/copies/scan/',
   },
   TRANSACTIONS: {
     CHECKOUT: '/transactions/checkout/',
     RETURN: '/transactions/return/',
     MY_LOANS: '/transactions/my-loans/',
+    RENEW: '/transactions/renew/',
     OVERDUE: '/transactions/overdue/',
   },
   RESERVATIONS: {
@@ -60,4 +62,10 @@ export const API_ENDPOINTS = {
     OVERVIEW: '/analytics/overview/',
     POLICIES: '/analytics/policies/',
   },
+  ADMIN: {
+    USERS: '/auth/admin/users/',
+    SYSTEM_LOGS: '/analytics/system/logs/',
+    SYSTEM_BACKUP: '/analytics/system/backup/',
+    SYSTEM_RESTORE: '/analytics/system/restore/',
+  }
 };
