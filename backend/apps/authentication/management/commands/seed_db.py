@@ -169,7 +169,7 @@ class Command(BaseCommand):
                 transaction=loan,
                 user=student_user,
                 defaults={
-                    'amount': 2.00, # 4 billable days * $0.50
+                    'amount': 2.00, # 4 billable days * ₦0.50
                     'overdue_days': 6,
                     'status': FineStatus.UNPAID
                 }

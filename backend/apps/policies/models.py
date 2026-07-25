@@ -11,4 +11,4 @@ class InstitutionPolicy(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Policy for {self.role}: {self.max_borrow_limit} books, ${self.fine_rate_per_day}/day"
+        return f"Policy for {self.role}: {self.max_borrow_limit} books, ₦{self.fine_rate_per_day}/day"

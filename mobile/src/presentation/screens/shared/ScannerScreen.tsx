@@ -6,7 +6,11 @@ import { apiClient } from '../../../core/utils/http';
 import { API_ENDPOINTS } from '../../../core/constants/api';
 import { useAuth } from '../../context/AuthContext';
 
-export const ScannerScreen: React.FC = () => {
+interface ScannerScreenProps {
+  onScanSuccess?: (qrCodeId: string) => void;
+}
+
+export const ScannerScreen: React.FC<ScannerScreenProps> = ({ onScanSuccess }) => {
   const { user } = useAuth();
   
   // Camera State
@@ -33,6 +37,11 @@ export const ScannerScreen: React.FC = () => {
   const handleBarCodeScanned = async ({ type, data }: { type: string, data: string }) => {
     if (scannedPayload || loadingCopy || lastTx) return;
     
+    if (onScanSuccess) {
+      onScanSuccess(data);
+      return;
+    }
+
     setScannedPayload(data);
     setLoadingCopy(true);
     setCopyDetails(null);

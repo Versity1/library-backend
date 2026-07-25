@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Transaction
+from .models import Transaction, GateAccessLog
 from apps.catalog.serializers import BookCopySerializer
 from apps.authentication.serializers import UserSerializer
 
@@ -29,3 +29,12 @@ class ReturnRequestSerializer(serializers.Serializer):
 
 class RenewRequestSerializer(serializers.Serializer):
     transaction_id = serializers.UUIDField(required=True)
+
+class GateAccessLogSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    student_id = serializers.CharField(source='user.student_staff_id', read_only=True)
+    department = serializers.CharField(source='user.department', read_only=True)
+
+    class Meta:
+        model = GateAccessLog
+        fields = ['id', 'user', 'student_name', 'student_id', 'department', 'entry_time', 'exit_time', 'status']

@@ -24,3 +24,20 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"Loan {self.id}: {self.book_copy.book.title} to {self.user.get_full_name()} ({self.status})"
+
+class GateAccessStatus(models.TextChoices):
+    INSIDE = 'INSIDE', 'Inside Library'
+    CHECKED_OUT = 'CHECKED_OUT', 'Checked Out'
+
+class GateAccessLog(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='access_logs')
+    entry_time = models.DateTimeField(auto_now_add=True)
+    exit_time = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=GateAccessStatus.choices, default=GateAccessStatus.INSIDE, db_index=True)
+
+    class Meta:
+        ordering = ['-entry_time']
+
+    def __str__(self):
+        return f"AccessLog {self.user.get_full_name() or self.user.username} ({self.status})"

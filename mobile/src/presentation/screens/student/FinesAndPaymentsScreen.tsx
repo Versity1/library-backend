@@ -27,7 +27,7 @@ export const FinesAndPaymentsScreen: React.FC = () => {
     <View style={s.bg}>
       <View style={s.balanceCard}>
         <View style={s.balanceHeader}><Text style={s.balanceLabel}>TOTAL OUTSTANDING BALANCE</Text><View style={s.dollarIcon}><DollarSign size={20} color="#FB7185" /></View></View>
-        <Text style={s.balanceAmount}>${totalUnpaid.toFixed(2)}</Text>
+        <Text style={s.balanceAmount}>₦{totalUnpaid.toFixed(2)}</Text>
         <Text style={s.balanceNote}>{totalUnpaid > 0 ? '⚠️ Please settle to resume checkouts.' : '✓ No outstanding penalties.'}</Text>
       </View>
 
@@ -39,10 +39,10 @@ export const FinesAndPaymentsScreen: React.FC = () => {
               <View style={{ flex: 1, paddingRight: 12 }}>
                 <Text style={s.fineTitle}>{fine.book_title}</Text>
                 <Text style={s.fineAuthor}>{fine.author}</Text>
-                <Text style={s.fineMeta}>Overdue by {fine.overdue_days} days • $0.50/day</Text>
+                <Text style={s.fineMeta}>Overdue by {fine.overdue_days} days • ₦0.50/day</Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={s.fineAmount}>${Number(fine.amount).toFixed(2)}</Text>
+                <Text style={s.fineAmount}>₦{Number(fine.amount).toFixed(2)}</Text>
                 <Badge label={fine.status} variant={fine.status === 'PAID' ? 'success' : 'danger'} />
                 {fine.status === 'UNPAID' && (
                   <TouchableOpacity onPress={() => setPayingFine(fine)} style={s.payBtn}>
@@ -61,7 +61,7 @@ export const FinesAndPaymentsScreen: React.FC = () => {
             <Text style={s.modalTitle}>Digital Fine Checkout</Text>
             <Text style={s.modalSub}>Confirm payment for "{payingFine.book_title}"</Text>
             <View style={s.detailBox}>
-              <View style={s.detailRow}><Text style={s.detailLabel}>Fine Amount:</Text><Text style={s.detailVal}>${Number(payingFine.amount).toFixed(2)}</Text></View>
+              <View style={s.detailRow}><Text style={s.detailLabel}>Fine Amount:</Text><Text style={s.detailVal}>₦{Number(payingFine.amount).toFixed(2)}</Text></View>
               <View style={s.detailRow}><Text style={s.detailLabel}>Payment Method:</Text><Text style={[s.detailVal,{color:'#14B8A6'}]}>Digital Student Wallet</Text></View>
             </View>
             <View style={{ flexDirection: 'row', gap: 12 }}>
@@ -79,7 +79,7 @@ export const FinesAndPaymentsScreen: React.FC = () => {
             <Text style={s.successTitle}>Payment Successful!</Text>
             <Text style={s.successRef}>Ref: {receipt.transaction_reference}</Text>
             <View style={[s.detailBox, { marginVertical: 16 }]}>
-              <Text style={s.receiptLine}>Amount: <Text style={{ fontWeight: '800', color: '#FFF' }}>${Number(receipt.amount_paid).toFixed(2)}</Text></Text>
+              <Text style={s.receiptLine}>Amount: <Text style={{ fontWeight: '800', color: '#FFF' }}>₦{Number(receipt.amount_paid).toFixed(2)}</Text></Text>
               <Text style={s.receiptLine}>Method: <Text style={{ fontWeight: '800', color: '#14B8A6' }}>{receipt.payment_method}</Text></Text>
             </View>
             <TouchableOpacity onPress={() => setReceipt(null)} style={s.confirmBtn}><Text style={s.confirmText}>Close Receipt</Text></TouchableOpacity>

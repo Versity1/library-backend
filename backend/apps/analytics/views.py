@@ -109,7 +109,7 @@ from reportlab.lib.pagesizes import letter
 import io
 
 class AdminReportPDFView(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAdmin]
     def get(self, request):
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer, pagesize=letter)

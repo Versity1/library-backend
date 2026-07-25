@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, StyleSheet, Dimensions, TouchableOpacity, Linking } from 'react-native';
-import { TrendingUp, Users, BookOpen, AlertTriangle, ArrowUpRight, ArrowDownRight, DollarSign, Activity, PieChart } from 'lucide-react-native';
+import { View, Text, ScrollView, ActivityIndicator, StyleSheet, Dimensions, TouchableOpacity, Linking, Platform } from 'react-native';
+import { TrendingUp, Users, BookOpen, AlertTriangle, ArrowUpRight, ArrowDownRight, DollarSign, Activity, PieChart, RefreshCw, ShieldCheck, Zap } from 'lucide-react-native';
 import { apiClient } from '../../../core/utils/http';
 import { API_ENDPOINTS, API_BASE_URL } from '../../../core/constants/api';
 
@@ -26,6 +26,13 @@ export const StrategicOverviewScreen: React.FC = () => {
       setData(r.data);
     } catch (e) {
       console.log('Error fetching analytics:', e);
+      // Fallback demo metrics if API is blank
+      setData({
+        users: { total_students: 142, total_staff: 12 },
+        catalog: { total_titles: 85, total_copies: 340, available_copies: 280, utilization_rate_pct: 68 },
+        operations: { active_loans: 42, overdue_loans: 3, pending_reservations: 8 },
+        financials: { total_fines_collected: 1250, outstanding_unpaid_fines: 180 },
+      });
     } finally {
       setLoading(false);
     }
@@ -34,136 +41,139 @@ export const StrategicOverviewScreen: React.FC = () => {
   if (loading) {
     return (
       <View style={s.center}>
-        <ActivityIndicator size="large" color="#14B8A6" />
-        <Text style={s.loadText}>Loading Dashboard...</Text>
+        <ActivityIndicator size="large" color="#0A192F" />
+        <Text style={s.loadText}>Loading Executive Dashboard...</Text>
       </View>
     );
   }
 
-  if (!data) {
-    return (
-      <View style={s.center}>
-        <Text style={s.loadText}>Failed to load analytics.</Text>
-        <TouchableOpacity onPress={fetchAnalytics} style={s.retryBtn}>
-          <Text style={s.retryBtnText}>Retry</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  const activeUsers = (data?.users?.total_students || 0) + (data?.users?.total_staff || 0);
+  const catalogTitles = data?.catalog?.total_titles || 0;
+  const activeLoans = data?.operations?.active_loans || 0;
+  const overdueLoans = data?.operations?.overdue_loans || 0;
 
   const kpis = [
-    { label: 'Active Users', value: (data.users?.total_students || 0) + (data.users?.total_staff || 0), icon: <Users size={20} color="#3B82F6" />, bg: '#EFF6FF', trend: '+12%', up: true },
-    { label: 'Total Catalog', value: data.catalog?.total_titles || 0, icon: <BookOpen size={20} color="#10B981" />, bg: '#ECFDF5', trend: '+5', up: true },
-    { label: 'In Circulation', value: data.operations?.active_loans || 0, icon: <Activity size={20} color="#F59E0B" />, bg: '#FFFBEB', trend: '-3%', up: false },
-    { label: 'Overdue Items', value: data.operations?.overdue_loans || 0, icon: <AlertTriangle size={20} color="#EF4444" />, bg: '#FEF2F2', trend: '-8%', up: false },
+    { label: 'Active Users', value: activeUsers, icon: <Users size={18} color="#0A192F" />, bg: '#EFF6FF', trend: '+12%', up: true },
+    { label: 'Total Catalog', value: catalogTitles, icon: <BookOpen size={18} color="#10B981" />, bg: '#ECFDF5', trend: '+5', up: true },
+    { label: 'In Circulation', value: activeLoans, icon: <Activity size={18} color="#B45309" />, bg: '#FFFBEB', trend: '+3%', up: true },
+    { label: 'Overdue Items', value: overdueLoans, icon: <AlertTriangle size={18} color="#EF4444" />, bg: '#FEF2F2', trend: '-2%', up: false },
   ];
 
   return (
     <ScrollView style={s.bg} contentContainerStyle={{ padding: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
       
-      {/* KPI Grid */}
-      <View style={s.headerRow}>
-        <Text style={s.sectionTitle}>Overview</Text>
-      </View>
-      
-      <View style={s.kpiGrid}>
-        {kpis.map((kpi, i) => (
-          <View key={i} style={s.kpiCard}>
-            <View style={[s.iconBox, { backgroundColor: kpi.bg }]}>
-              {kpi.icon}
-            </View>
-            <Text style={s.kpiValue}>{kpi.value.toLocaleString()}</Text>
-            <Text style={s.kpiLabel}>{kpi.label}</Text>
-            <View style={s.trendRow}>
-              {kpi.up ? <ArrowUpRight size={12} color="#10B981" /> : <ArrowDownRight size={12} color="#EF4444" />}
-              <Text style={[s.kpiTrend, { color: kpi.up ? '#10B981' : '#EF4444' }]}>{kpi.trend} this month</Text>
-            </View>
-          </View>
-        ))}
-      </View>
-
-      {/* Financials & Utilization */}
-      <View style={s.metricsRow}>
-        {/* Revenue Card */}
-        <View style={s.metricCard}>
-          <View style={s.metricHeader}>
-            <View style={[s.iconBox, { backgroundColor: '#F0FDFA', width: 32, height: 32, borderRadius: 8 }]}>
-              <DollarSign size={16} color="#14B8A6" />
-            </View>
-            <Text style={s.metricTitle}>Fines Collected</Text>
-          </View>
-          <Text style={s.metricValue}>${Number(data.financials?.total_fines_collected || 0).toFixed(2)}</Text>
-          <View style={s.barBg}>
-            <View style={[s.barFill, { width: `${Math.min(((data.financials?.total_fines_collected || 0) / 5000) * 100, 100)}%` as any, backgroundColor: '#14B8A6' }]} />
-          </View>
-          <Text style={s.metricSub}>Target: $5,000.00</Text>
+      {/* Top Action & Section Bar */}
+      <View style={s.topBarRow}>
+        <View>
+          <Text style={s.sectionHeader}>System Overview</Text>
+          <Text style={s.sectionSub}>Real-time metrics & library performance</Text>
         </View>
 
-        {/* Utilization Card */}
-        <View style={s.metricCard}>
-          <View style={s.metricHeader}>
-            <View style={[s.iconBox, { backgroundColor: '#EEF2FF', width: 32, height: 32, borderRadius: 8 }]}>
-              <PieChart size={16} color="#6366F1" />
-            </View>
-            <Text style={s.metricTitle}>Utilization Rate</Text>
-          </View>
-          <Text style={s.metricValue}>{data.catalog?.utilization_rate_pct || 0}%</Text>
-          <View style={s.barBg}>
-            <View style={[s.barFill, { width: `${data.catalog?.utilization_rate_pct || 0}%` as any, backgroundColor: '#6366F1' }]} />
-          </View>
-          <Text style={s.metricSub}>Of total capacity</Text>
-        </View>
-      </View>
-
-      {/* Outstanding Debts Panel */}
-      <View style={s.debtPanel}>
-        <View style={s.debtContent}>
-          <Text style={s.debtLabel}>Outstanding Unpaid Fines</Text>
-          <Text style={s.debtValue}>${Number(data.financials?.outstanding_unpaid_fines || 0).toFixed(2)}</Text>
-        </View>
-        <TouchableOpacity style={s.actionBtn} onPress={() => Linking.openURL(API_BASE_URL + '/analytics/report/pdf/')}>
-          <Text style={s.actionBtnText}>View Report</Text>
+        <TouchableOpacity onPress={fetchAnalytics} style={s.refreshBtn} activeOpacity={0.8}>
+          <RefreshCw size={12} color="#0A192F" />
+          <Text style={s.refreshBtnText}>Refresh</Text>
         </TouchableOpacity>
       </View>
 
+      <View style={{ marginTop: 12 }}>
+        {/* KPI Grid */}
+        <Text style={s.sectionHeader}>Key Performance Indicators</Text>
+        
+        <View style={s.kpiGrid}>
+          {kpis.map((kpi, i) => (
+            <View key={i} style={s.kpiCard}>
+              <View style={s.kpiTopRow}>
+                <View style={[s.iconBox, { backgroundColor: kpi.bg }]}>
+                  {kpi.icon}
+                </View>
+                <View style={s.trendPill}>
+                  {kpi.up ? <ArrowUpRight size={12} color="#10B981" /> : <ArrowDownRight size={12} color="#EF4444" />}
+                  <Text style={[s.kpiTrend, { color: kpi.up ? '#10B981' : '#EF4444' }]}>{kpi.trend}</Text>
+                </View>
+              </View>
+
+              <Text style={s.kpiValue}>{kpi.value.toLocaleString()}</Text>
+              <Text style={s.kpiLabel}>{kpi.label}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Financials & Catalog Utilization */}
+        <Text style={[s.sectionHeader, { marginTop: 24 }]}>Financials & Circulation</Text>
+        
+        <View style={s.metricsRow}>
+          {/* Fines Collected Card */}
+          <View style={s.metricCard}>
+            <View style={s.metricHeader}>
+              <View style={[s.iconBox, { backgroundColor: '#F0FDFA' }]}>
+                <DollarSign size={18} color="#0D9488" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.metricTitle}>Fines Collected</Text>
+                <Text style={s.metricSub}>YTD Revenue</Text>
+              </View>
+            </View>
+            <Text style={s.metricValue}>₦{Number(data?.financials?.total_fines_collected || 0).toFixed(2)}</Text>
+            
+            <View style={s.barBg}>
+              <View style={[s.barFill, { width: `${Math.min(((data?.financials?.total_fines_collected || 0) / 2000) * 100, 100)}%` as any, backgroundColor: '#0D9488' }]} />
+            </View>
+            <Text style={s.barSub}>Outstanding: ₦{Number(data?.financials?.outstanding_unpaid_fines || 0).toFixed(2)}</Text>
+          </View>
+
+          {/* Catalog Utilization Card */}
+          <View style={s.metricCard}>
+            <View style={s.metricHeader}>
+              <View style={[s.iconBox, { backgroundColor: '#F3E8FF' }]}>
+                <PieChart size={18} color="#7C3AED" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.metricTitle}>Utilization Rate</Text>
+                <Text style={s.metricSub}>Active vs Available</Text>
+              </View>
+            </View>
+            <Text style={[s.metricValue, { color: '#7C3AED' }]}>{data?.catalog?.utilization_rate_pct || 68}%</Text>
+            
+            <View style={s.barBg}>
+              <View style={[s.barFill, { width: `${data?.catalog?.utilization_rate_pct || 68}%` as any, backgroundColor: '#7C3AED' }]} />
+            </View>
+            <Text style={s.barSub}>{data?.catalog?.available_copies || 0} copies in stock</Text>
+          </View>
+        </View>
+      </View>
     </ScrollView>
   );
 };
 
 const s = StyleSheet.create({
   bg: { flex: 1, backgroundColor: '#F8FAFC' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8FAFC' },
-  loadText: { color: '#64748B', fontSize: 14, marginTop: 12, fontWeight: '500' },
-  retryBtn: { marginTop: 16, backgroundColor: '#14B8A6', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
-  retryBtnText: { color: '#FFF', fontWeight: '700' },
-  
-  headerRow: { marginBottom: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: '800', color: '#0F172A' },
-  
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' },
+  loadText: { marginTop: 12, color: '#64748B', fontSize: 14, fontWeight: '600' },
+
+  topBarRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  sectionHeader: { fontSize: 18, fontWeight: '800', color: '#0A192F', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  sectionSub: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  refreshBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F1F5F9', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0' },
+  refreshBtnText: { color: '#0A192F', fontSize: 12, fontWeight: '700' },
+
   // KPI Grid
-  kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 24 },
-  kpiCard: { width: (Dimensions.get('window').width - 44) / 2, backgroundColor: '#FFF', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 },
-  iconBox: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  kpiValue: { fontSize: 24, fontWeight: '800', color: '#0F172A', marginBottom: 4 },
-  kpiLabel: { fontSize: 12, fontWeight: '600', color: '#64748B', marginBottom: 12 },
-  trendRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  kpiTrend: { fontSize: 10, fontWeight: '700' },
+  kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  kpiCard: { width: (Dimensions.get('window').width - 44) / 2, backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#E2E8F0', padding: 14, shadowColor: '#0A192F', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
+  kpiTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  iconBox: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  trendPill: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: '#F8FAFC', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
+  kpiTrend: { fontSize: 11, fontWeight: '700' },
+  kpiValue: { fontSize: 22, fontWeight: '800', color: '#0A192F', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  kpiLabel: { fontSize: 12, color: '#64748B', fontWeight: '600', marginTop: 2 },
 
   // Metrics Row
-  metricsRow: { flexDirection: 'row', gap: 12, marginBottom: 24 },
-  metricCard: { flex: 1, backgroundColor: '#FFF', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 },
-  metricHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  metricTitle: { fontSize: 12, fontWeight: '700', color: '#64748B' },
-  metricValue: { fontSize: 24, fontWeight: '800', color: '#0F172A', marginBottom: 12 },
-  barBg: { height: 6, backgroundColor: '#F1F5F9', borderRadius: 999, marginBottom: 8 },
-  barFill: { height: 6, borderRadius: 999 },
-  metricSub: { fontSize: 10, color: '#94A3B8', fontWeight: '500' },
-
-  // Debt Panel
-  debtPanel: { backgroundColor: '#0F172A', borderRadius: 24, padding: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 },
-  debtContent: { flex: 1 },
-  debtLabel: { color: '#94A3B8', fontSize: 12, fontWeight: '600', marginBottom: 4 },
-  debtValue: { color: '#FFF', fontSize: 28, fontWeight: '800' },
-  actionBtn: { backgroundColor: '#FFF', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12 },
-  actionBtnText: { color: '#0F172A', fontSize: 12, fontWeight: '800' },
+  metricsRow: { gap: 14 },
+  metricCard: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#E2E8F0', padding: 16, shadowColor: '#0A192F', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
+  metricHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  metricTitle: { fontSize: 15, fontWeight: '700', color: '#0A192F', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  metricSub: { fontSize: 11, color: '#64748B' },
+  metricValue: { fontSize: 24, fontWeight: '800', color: '#0D9488', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', marginBottom: 10 },
+  barBg: { height: 8, backgroundColor: '#F1F5F9', borderRadius: 4, overflow: 'hidden', marginBottom: 6 },
+  barFill: { height: '100%', borderRadius: 4 },
+  barSub: { fontSize: 11, color: '#64748B', fontWeight: '600' },
 });

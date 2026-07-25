@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Modal } from 'react-native';
-import { LogOut, ShieldCheck, QrCode, BookOpen, Bell, User } from 'lucide-react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Modal, Platform } from 'react-native';
+import { LogOut, ShieldCheck, Bell, Menu, BookOpen } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   onRoleSwitchClick?: () => void;
 }
@@ -12,32 +12,42 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ title, subtitle, onRoleSwitchClick }) => {
   const { user, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
-  const isLightMode = true;
+  const isLightMode = user?.role === 'STUDENT' || user?.role === 'LIBRARIAN';
   
-  // Empty array to simulate no notifications for now
   const notifications: any[] = [];
 
   if (isLightMode) {
     return (
       <View style={s.lightContainer}>
         <View style={s.lightRow}>
+          {/* Left Avatar / Menu Icon */}
           <View style={s.leftSection}>
-            <View style={s.avatarBox}>
-              <User size={24} color="#94A3B8" />
-            </View>
-            <Text style={s.greetingText}>Hi, {user?.first_name || 'User'}</Text>
+            {user?.role === 'STUDENT' ? (
+              <View style={s.avatarBox}>
+                <Image 
+                  source={{ uri: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop' }} 
+                  style={{ width: '100%', height: '100%' }}
+                />
+              </View>
+            ) : (
+              <TouchableOpacity activeOpacity={0.7} style={s.lightIconBtn}>
+                <Menu size={22} color="#0F172A" />
+              </TouchableOpacity>
+            )}
           </View>
 
+          {/* Title Center Logo */}
           <View style={s.centerSection}>
-            <BookOpen size={30} color="#14B8A6" />
+            <View style={s.logoWrapper}>
+              <BookOpen size={24} color="#0F172A" />
+              <Text style={s.appTitle}>{title || 'Shelfie'}</Text>
+            </View>
           </View>
 
+          {/* Bell Icon Right */}
           <View style={s.rightSection}>
-            <TouchableOpacity onPress={() => setShowNotifications(true)} style={[s.lightIconBtn, { marginRight: 8 }]}>
+            <TouchableOpacity onPress={() => setShowNotifications(true)} style={s.lightIconBtn} activeOpacity={0.7}>
               <Bell size={22} color="#0F172A" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={logout} style={s.lightIconBtn}>
-              <LogOut size={22} color="#0F172A" />
             </TouchableOpacity>
           </View>
         </View>
@@ -46,11 +56,17 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onRoleSwitchCli
         <Modal visible={showNotifications} transparent={true} animationType="fade">
           <View style={s.modalOverlay}>
             <View style={s.notifBox}>
-              <Text style={s.notifTitle}>Notifications</Text>
+              <View style={s.notifHeaderRow}>
+                <Text style={s.notifTitle}>Notifications</Text>
+                <TouchableOpacity onPress={logout} style={s.logoutBtn}>
+                  <LogOut size={16} color="#EF4444" />
+                  <Text style={s.logoutText}>Log Out</Text>
+                </TouchableOpacity>
+              </View>
               
               {notifications.length === 0 ? (
                 <View style={s.emptyNotifBox}>
-                  <Bell size={32} color="#CBD5E1" style={{ marginBottom: 12 }} />
+                  <Bell size={36} color="#94A3B8" style={{ marginBottom: 12 }} />
                   <Text style={s.emptyNotifText}>No notifications available</Text>
                 </View>
               ) : (
@@ -69,46 +85,55 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onRoleSwitchCli
     );
   }
 
-  // Dark Theme for Librarian & Admin
+  // Dark Theme for Admin (Compact Header)
   return (
     <View style={s.container}>
       <View style={s.row}>
-        <View style={{ flex: 1 }}>
+        {/* Left Section: Role */}
+        <View style={{ width: 60 }}>
           <View style={s.roleRow}>
-            <View style={s.roleIcon}>
-              <ShieldCheck size={18} color="#14B8A6" />
-            </View>
-            <Text style={s.roleLabel}>{user ? `${user.role} PORTAL` : 'GUEST PORTAL'}</Text>
+            <View style={s.pulseDot} />
+            <Text style={s.roleLabel}>ADMIN</Text>
           </View>
-          <Text style={s.title}>{title}</Text>
-          {subtitle ? <Text style={s.subtitle}>{subtitle}</Text> : null}
         </View>
 
+        {/* Center Logo */}
+        <View style={s.adminCenterSection}>
+          <View style={s.logoWrapper}>
+            <BookOpen size={22} color="#14B8A6" />
+            <Text style={s.title}>{title || 'Shelfie Admin'}</Text>
+          </View>
+        </View>
+
+        {/* Right Section: Action Buttons */}
         {user ? (
           <View style={s.actionsRow}>
-            {onRoleSwitchClick && (
-              <TouchableOpacity onPress={onRoleSwitchClick} style={s.switchBtn}>
-                <Text style={s.switchText}>Switch Role</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity onPress={() => setShowNotifications(true)} style={s.iconBtn}>
-              <Bell size={20} color="#CBD5E1" />
+            <TouchableOpacity onPress={() => setShowNotifications(true)} style={s.iconBtn} activeOpacity={0.7}>
+              <Bell size={16} color="#94A3B8" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={logout} style={[s.iconBtn, { marginLeft: 8 }]}>
-              <LogOut size={20} color="#F87171" />
+            
+            <TouchableOpacity onPress={logout} style={s.logoutBtn} activeOpacity={0.7}>
+              <LogOut size={14} color="#EF4444" />
+              <Text style={s.logoutBtnText}>Log Out</Text>
             </TouchableOpacity>
           </View>
         ) : null}
 
-        {/* Notifications Modal for Dark Theme */}
+        {/* Notifications Modal */}
         <Modal visible={showNotifications} transparent={true} animationType="fade">
           <View style={s.modalOverlay}>
             <View style={s.notifBox}>
-              <Text style={s.notifTitle}>Notifications</Text>
+              <View style={s.notifHeaderRow}>
+                <Text style={s.notifTitle}>Notifications</Text>
+                <TouchableOpacity onPress={logout} style={s.modalLogoutBtn}>
+                  <LogOut size={16} color="#EF4444" />
+                  <Text style={s.logoutText}>Log Out</Text>
+                </TouchableOpacity>
+              </View>
               
               {notifications.length === 0 ? (
                 <View style={s.emptyNotifBox}>
-                  <Bell size={32} color="#CBD5E1" style={{ marginBottom: 12 }} />
+                  <Bell size={36} color="#94A3B8" style={{ marginBottom: 12 }} />
                   <Text style={s.emptyNotifText}>No notifications available</Text>
                 </View>
               ) : (
@@ -129,34 +154,39 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onRoleSwitchCli
 };
 
 const s = StyleSheet.create({
-  // Dark Theme Styles
-  container: { backgroundColor: '#0F172A', paddingTop: 48, paddingBottom: 20, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  // Dark Theme Styles for Admin (Slim & Compact)
+  container: { backgroundColor: '#0A192F', paddingTop: Platform.OS === 'ios' ? 42 : 12, paddingBottom: 10, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)' },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  roleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  roleIcon: { backgroundColor: 'rgba(20,184,166,0.2)', padding: 6, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(20,184,166,0.3)' },
-  roleLabel: { color: '#94A3B8', fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
-  title: { color: '#FFFFFF', fontSize: 24, fontWeight: '800', marginTop: 4 },
-  subtitle: { color: '#94A3B8', fontSize: 13, marginTop: 2 },
-  actionsRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  switchBtn: { backgroundColor: '#1E293B', borderWidth: 1, borderColor: '#334155', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12 },
-  switchText: { color: '#CBD5E1', fontSize: 11, fontWeight: '700' },
-  iconBtn: { backgroundColor: '#1E293B', borderWidth: 1, borderColor: '#334155', padding: 10, borderRadius: 12 },
-  logoutBtn: { backgroundColor: 'rgba(251,113,133,0.1)', borderWidth: 1, borderColor: 'rgba(251,113,133,0.3)', padding: 10, borderRadius: 12 },
+  roleRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 2 },
+  pulseDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' },
+  roleLabel: { color: '#94A3B8', fontSize: 9, fontWeight: '800', letterSpacing: 0.8 },
+  title: { color: '#FFFFFF', fontSize: 18, fontWeight: '800', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  subtitle: { color: '#94A3B8', fontSize: 11, marginTop: 1 },
+  actionsRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  iconBtn: { backgroundColor: 'rgba(255,255,255,0.08)', padding: 8, borderRadius: 8 },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(239,68,68,0.15)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(239,68,68,0.3)' },
+  logoutBtnText: { color: '#EF4444', fontSize: 11, fontWeight: '700' },
+  modalLogoutBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FEF2F2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
   
-  // Light Theme Styles
-  lightContainer: { backgroundColor: '#F8FAFC', paddingTop: 48, paddingBottom: 16, paddingHorizontal: 20 },
+  // Light Theme (Student & Librarian Header)
+  lightContainer: { backgroundColor: '#F8FAFC', paddingTop: 48, paddingBottom: 12, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   lightRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  leftSection: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 },
-  avatarBox: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#E2E8F0', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  greetingText: { color: '#0F172A', fontSize: 16, fontWeight: '700' },
+  leftSection: { width: 50, alignItems: 'flex-start' },
+  avatarBox: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#E2E8F0', overflow: 'hidden', borderWidth: 1, borderColor: '#CBD5E1' },
+  logoWrapper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  adminCenterSection: { flex: 1, alignItems: 'center' },
   centerSection: { flex: 1, alignItems: 'center' },
-  rightSection: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' },
-  lightIconBtn: { padding: 8 },
+  appTitle: { color: '#0A192F', fontSize: 22, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  rightSection: { width: 50, alignItems: 'flex-end' },
+  lightIconBtn: { padding: 6 },
 
   // Modal Styles
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   notifBox: { backgroundColor: '#FFF', width: '100%', maxWidth: 400, borderRadius: 24, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 },
-  notifTitle: { fontSize: 20, fontWeight: '800', color: '#0F172A', marginBottom: 16 },
+  notifHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  notifTitle: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FEF2F2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  logoutText: { color: '#EF4444', fontWeight: '700', fontSize: 12 },
   emptyNotifBox: { paddingVertical: 40, alignItems: 'center', justifyContent: 'center' },
   emptyNotifText: { color: '#64748B', fontSize: 15, fontWeight: '500' },
   dismissBtn: { backgroundColor: '#F1F5F9', paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginTop: 8 },

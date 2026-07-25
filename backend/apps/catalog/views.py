@@ -43,6 +43,15 @@ class BookViewSet(viewsets.ModelViewSet):
             return [IsLibrarian()]
         return [permissions.IsAuthenticated()]
 
+    def perform_create(self, serializer):
+        total_copies = serializer.validated_data.get('total_copies', 1)
+        available_copies = serializer.validated_data.get('available_copies', total_copies)
+        book = serializer.save(total_copies=total_copies, available_copies=available_copies)
+        
+        qr_code_id = self.request.data.get('qr_code_id') or f"QR-{book.isbn}"
+        if not BookCopy.objects.filter(qr_code_id=qr_code_id).exists():
+            BookCopy.objects.create(book=book, qr_code_id=qr_code_id, status='AVAILABLE')
+
 class BookCopyViewSet(viewsets.ModelViewSet):
     queryset = BookCopy.objects.all().order_by('-added_at')
     serializer_class = BookCopySerializer

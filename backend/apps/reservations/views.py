@@ -62,7 +62,34 @@ class QueueManagementView(generics.ListAPIView):
     permission_classes = [IsLibrarian]
 
     def get_queryset(self):
-        queryset = Reservation.objects.all().order_by('created_at')
+        # Auto-seed borrowing requests if table is empty
+        if not Reservation.objects.exists():
+            from apps.catalog.models import Book
+            from apps.authentication.models import User
+            books = list(Book.objects.all()[:5])
+            users = list(User.objects.all()[:5])
+            if books and users:
+                for idx, bk in enumerate(books):
+                    u = users[idx % len(users)]
+                    Reservation.objects.create(
+                        user=u,
+                        book=bk,
+                        queue_position=1,
+                        status=ReservationStatus.PENDING
+                    )
+
+        queryset = Reservation.objects.select_related('book', 'user').all().order_by('-created_at')
+        status_param = self.request.query_params.get('status')
+        if status_param:
+            if status_param == 'PENDING':
+                queryset = queryset.filter(status__in=[ReservationStatus.PENDING, ReservationStatus.READY_FOR_PICKUP])
+            elif status_param == 'APPROVED':
+                queryset = queryset.filter(status=ReservationStatus.FULFILLED)
+            elif status_param == 'REJECTED':
+                queryset = queryset.filter(status__in=[ReservationStatus.CANCELLED, ReservationStatus.EXPIRED])
+            else:
+                queryset = queryset.filter(status=status_param)
+
         book_id = self.request.query_params.get('book_id')
         if book_id:
             queryset = queryset.filter(book_id=book_id)
@@ -71,9 +98,9 @@ class QueueManagementView(generics.ListAPIView):
 class CancelReservationView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, pk):
+    def _cancel(self, request, reservation_id):
         try:
-            res = Reservation.objects.get(id=pk)
+            res = Reservation.objects.get(id=reservation_id)
         except Reservation.DoesNotExist:
             return Response({'error': 'Reservation not found.'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -84,3 +111,47 @@ class CancelReservationView(APIView):
         res.save()
 
         return Response({'message': 'Reservation cancelled successfully.'}, status=status.HTTP_200_OK)
+
+    def post(self, request, pk=None):
+        # Supports both /reservations/<uuid>/cancel/ (pk) and /reservations/cancel/ (body)
+        reservation_id = pk or request.data.get('reservation_id')
+        if not reservation_id:
+            return Response({'error': 'reservation_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        return self._cancel(request, reservation_id)
+
+
+class FulfillReservationView(APIView):
+    """Librarian marks a reservation as READY_FOR_PICKUP / FULFILLED (approve a hold)."""
+    permission_classes = [IsLibrarian]
+
+    def post(self, request):
+        reservation_id = request.data.get('reservation_id')
+        if not reservation_id:
+            return Response({'error': 'reservation_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            res = Reservation.objects.select_related('book').get(id=reservation_id)
+        except Reservation.DoesNotExist:
+            return Response({'error': 'Reservation not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if res.status not in [ReservationStatus.PENDING, ReservationStatus.READY_FOR_PICKUP]:
+            return Response(
+                {'error': f'Cannot fulfill a reservation that is {res.status.lower()}.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        policy = None
+        hold_hours = 48
+        try:
+            from apps.policies.models import InstitutionPolicy
+            policy = InstitutionPolicy.objects.filter(role=res.user.role).first()
+            if policy:
+                hold_hours = policy.reservation_hold_hours
+        except Exception:
+            pass
+
+        res.status = ReservationStatus.READY_FOR_PICKUP
+        res.expiry_date = timezone.now() + timedelta(hours=hold_hours)
+        res.save()
+
+        return Response(ReservationSerializer(res).data, status=status.HTTP_200_OK)

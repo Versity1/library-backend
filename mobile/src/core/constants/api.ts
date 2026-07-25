@@ -27,6 +27,8 @@ export const API_ENDPOINTS = {
     REGISTER: '/auth/register/',
     REFRESH: '/auth/refresh/',
     ME: '/auth/me/',
+    PASSWORD_RESET_REQUEST: '/auth/password-reset/request/',
+    PASSWORD_RESET_CONFIRM: '/auth/password-reset/confirm/',
   },
   CATALOG: {
     BOOKS: '/catalog/books/',
@@ -40,6 +42,9 @@ export const API_ENDPOINTS = {
     MY_LOANS: '/transactions/my-loans/',
     RENEW: '/transactions/renew/',
     OVERDUE: '/transactions/overdue/',
+    ACCESS_LOGS: '/transactions/access-logs/',
+    ACCESS_LOGS_SCAN: '/transactions/access-logs/scan/',
+    ACCESS_LOGS_MANUAL_CHECKOUT: '/transactions/access-logs/manual-checkout/',
   },
   RESERVATIONS: {
     RESERVE: '/reservations/reserve/',

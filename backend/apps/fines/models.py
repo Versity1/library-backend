@@ -22,7 +22,7 @@ class Fine(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Fine {self.id}: ${self.amount} for {self.user.get_full_name()} ({self.status})"
+        return f"Fine {self.id}: ₦{self.amount} for {self.user.get_full_name()} ({self.status})"
 
 class PaymentMethod(models.TextChoices):
     DIGITAL_WALLET = 'DIGITAL_WALLET', 'Digital Wallet'
@@ -39,4 +39,4 @@ class PaymentRecord(models.Model):
     paid_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Payment {self.transaction_reference}: ${self.amount_paid}"
+        return f"Payment {self.transaction_reference}: ₦{self.amount_paid}"

@@ -59,3 +59,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data['username'] = validated_data['email']
         user = User.objects.create_user(**validated_data)
         return user
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    identifier = serializers.CharField(required=True, help_text="Email address or Student/Staff ID")
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    identifier = serializers.CharField(required=True, help_text="Email address or Student/Staff ID")
+    otp_code = serializers.CharField(required=True, max_length=6, min_length=6)
+    new_password = serializers.CharField(required=True, min_length=6, write_only=True)

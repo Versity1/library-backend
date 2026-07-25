@@ -121,3 +121,497 @@ INFO 2026-07-24 02:06:56,346 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 91
 INFO 2026-07-24 02:06:56,514 basehttp "GET /api/v1/transactions/overdue/ HTTP/1.1" 200 672
 INFO 2026-07-24 02:06:56,518 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
 INFO 2026-07-24 02:07:01,966 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 23:36:50,876 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 23:37:42,770 basehttp "OPTIONS /api/v1/catalog/books/?search= HTTP/1.1" 200 0
+INFO 2026-07-24 23:37:42,776 basehttp "OPTIONS /api/v1/transactions/my-loans/ HTTP/1.1" 200 0
+INFO 2026-07-24 23:37:42,911 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 23:37:42,921 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 23:37:44,070 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 23:37:44,074 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 23:37:50,027 basehttp "OPTIONS /api/v1/fines/my-fines/ HTTP/1.1" 200 0
+INFO 2026-07-24 23:37:50,030 basehttp "OPTIONS /api/v1/reservations/my-reservations/ HTTP/1.1" 200 0
+INFO 2026-07-24 23:37:50,108 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 23:37:50,115 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-24 23:37:50,126 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-24 23:38:21,103 basehttp "OPTIONS /api/v1/auth/login/ HTTP/1.1" 200 0
+INFO 2026-07-24 23:38:22,514 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-24 23:38:22,564 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 23:38:22,565 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-24 23:38:22,568 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-24 23:38:54,560 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-24 23:39:02,034 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 23:39:02,038 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-24 23:39:02,040 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-24 23:39:04,527 basehttp "OPTIONS /api/v1/transactions/renew/ HTTP/1.1" 200 0
+INFO 2026-07-24 23:39:04,564 basehttp "POST /api/v1/transactions/renew/ HTTP/1.1" 200 620
+INFO 2026-07-24 23:39:06,764 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 23:39:06,767 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-24 23:39:06,767 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-24 23:39:10,441 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 23:39:10,451 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-24 23:40:30,735 autoreload Watching for file changes with StatReloader
+INFO 2026-07-24 23:40:38,553 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-24 23:40:41,190 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-24 23:40:41,194 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-24 23:40:41,196 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 00:10:45,147 autoreload C:\Users\HomePC\Desktop\library\backend\apps\reservations\views.py changed, reloading.
+INFO 2026-07-25 00:10:46,873 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 00:10:56,194 autoreload C:\Users\HomePC\Desktop\library\backend\apps\reservations\urls.py changed, reloading.
+INFO 2026-07-25 00:10:57,758 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 00:22:13,459 autoreload C:\Users\HomePC\Desktop\library\backend\apps\analytics\views.py changed, reloading.
+INFO 2026-07-25 00:22:15,054 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 00:23:03,185 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:23:03,192 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 00:23:05,723 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 00:23:08,657 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:23:08,660 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 00:30:33,162 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:30:33,163 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 00:31:53,361 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 00:31:53,364 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:31:53,372 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 00:32:15,272 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:32:15,272 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 00:32:15,272 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 00:44:45,870 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:44:45,872 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 00:45:00,627 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:45:00,628 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 00:46:03,595 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 00:46:03,595 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:46:03,604 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 00:46:05,775 basehttp "POST /api/v1/transactions/renew/ HTTP/1.1" 200 620
+INFO 2026-07-25 00:46:08,205 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 00:46:08,208 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:46:08,212 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 00:46:27,309 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 00:46:53,743 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 00:46:53,749 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:46:53,750 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 00:46:58,920 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:46:58,922 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 00:49:48,454 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 00:49:48,482 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:55:29,675 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:55:29,714 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 00:55:30,305 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 00:55:30,305 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 00:59:32,047 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 01:00:28,945 basehttp "OPTIONS /api/v1/catalog/books/?search= HTTP/1.1" 200 0
+INFO 2026-07-25 01:00:28,946 basehttp "OPTIONS /api/v1/transactions/my-loans/ HTTP/1.1" 200 0
+INFO 2026-07-25 01:00:29,027 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:00:29,037 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:00:37,015 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:00:37,018 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:06:42,204 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-25 01:06:42,370 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:06:42,375 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:09:53,184 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:09:53,184 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:10:07,137 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:10:07,140 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:10:31,574 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:10:31,577 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:10:55,456 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:10:56,280 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:10:56,430 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:11:08,540 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:11:08,579 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 01:11:08,585 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 01:11:09,108 basehttp "OPTIONS /api/v1/reservations/my-reservations/ HTTP/1.1" 200 0
+INFO 2026-07-25 01:11:09,120 basehttp "OPTIONS /api/v1/fines/my-fines/ HTTP/1.1" 200 0
+INFO 2026-07-25 01:11:09,130 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:11:09,141 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 01:11:09,149 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 01:11:09,265 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:11:09,271 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 01:11:09,274 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 01:13:05,794 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:13:05,795 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 01:13:05,800 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 01:13:35,356 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:13:41,272 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:16:00,361 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:16:15,743 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:20:58,711 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-25 01:21:01,759 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-25 01:21:02,282 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:21:02,300 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 01:21:02,316 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 01:21:05,884 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:21:05,898 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 01:21:05,903 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+WARNING 2026-07-25 01:21:20,523 log Not Found: /api/v1/catalog/copies/scan/
+WARNING 2026-07-25 01:21:20,523 basehttp "GET /api/v1/catalog/copies/scan/?qr_code_id=qr.inc.hp.com/go/12066f HTTP/1.1" 404 49
+INFO 2026-07-25 01:21:42,502 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:21:45,428 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:22:08,742 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 919
+INFO 2026-07-25 01:22:09,655 basehttp "GET /api/v1/transactions/overdue/ HTTP/1.1" 200 52
+INFO 2026-07-25 01:22:09,663 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
+INFO 2026-07-25 01:22:11,305 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 919
+INFO 2026-07-25 01:22:11,722 basehttp "GET /api/v1/transactions/overdue/ HTTP/1.1" 200 52
+INFO 2026-07-25 01:22:11,747 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
+INFO 2026-07-25 01:22:41,755 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3011
+INFO 2026-07-25 01:23:42,405 basehttp "POST /api/v1/catalog/books/ HTTP/1.1" 201 384
+INFO 2026-07-25 01:23:42,448 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 01:23:50,332 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-25 01:23:54,131 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:23:54,134 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 01:23:54,148 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 01:23:56,828 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 01:25:03,875 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 01:46:17,170 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 01:46:17,172 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:46:17,177 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 01:49:25,387 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
+INFO 2026-07-25 01:50:05,819 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 523
+INFO 2026-07-25 01:50:05,826 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 01:50:05,830 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 01:50:09,363 basehttp "GET /api/v1/reservations/queue/?status=APPROVED HTTP/1.1" 200 523
+INFO 2026-07-25 01:50:12,714 basehttp "GET /api/v1/reservations/queue/?status=REJECTED HTTP/1.1" 200 523
+INFO 2026-07-25 01:50:15,508 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
+WARNING 2026-07-25 01:50:21,459 log Not Found: /api/v1/api/v1/users/
+WARNING 2026-07-25 01:50:21,459 basehttp "GET /api/v1/api/v1/users/?search= HTTP/1.1" 404 3528
+INFO 2026-07-25 01:50:33,304 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 01:50:43,390 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
+INFO 2026-07-25 01:50:50,675 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+WARNING 2026-07-25 01:51:04,340 log Not Found: /api/v1/api/v1/users/
+WARNING 2026-07-25 01:51:04,341 basehttp "GET /api/v1/api/v1/users/?search= HTTP/1.1" 404 3528
+INFO 2026-07-25 01:51:25,839 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 919
+INFO 2026-07-25 01:51:27,130 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
+INFO 2026-07-25 01:51:41,328 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+WARNING 2026-07-25 01:54:28,331 log Not Found: /api/v1/api/v1/users/
+WARNING 2026-07-25 01:54:28,332 basehttp "GET /api/v1/api/v1/users/?search= HTTP/1.1" 404 3528
+INFO 2026-07-25 01:54:50,940 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+WARNING 2026-07-25 01:56:55,427 log Not Found: /api/v1/catalog/copies/scan/
+WARNING 2026-07-25 01:56:55,428 basehttp "GET /api/v1/catalog/copies/scan/?qr_code_id=qr.inc.hp.com/go/12066f HTTP/1.1" 404 49
+WARNING 2026-07-25 01:57:22,411 log Not Found: /api/v1/api/v1/users/
+WARNING 2026-07-25 01:57:22,412 basehttp "GET /api/v1/api/v1/users/?search= HTTP/1.1" 404 3528
+INFO 2026-07-25 01:58:28,182 basehttp "GET /admin HTTP/1.1" 301 0
+INFO 2026-07-25 01:58:28,485 basehttp "GET /admin/ HTTP/1.1" 200 14036
+INFO 2026-07-25 01:58:28,638 basehttp "GET /static/admin/css/base.css HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:28,656 basehttp "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:28,680 basehttp "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:28,697 basehttp "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:28,712 basehttp "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:28,719 basehttp "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:28,771 basehttp "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:28,818 basehttp "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:28,819 basehttp "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+WARNING 2026-07-25 01:58:29,185 log Not Found: /favicon.ico
+WARNING 2026-07-25 01:58:29,187 basehttp "GET /favicon.ico HTTP/1.1" 404 3493
+INFO 2026-07-25 01:58:33,896 basehttp "GET /admin/authentication/user/ HTTP/1.1" 200 22433
+INFO 2026-07-25 01:58:33,937 basehttp "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,939 basehttp "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,937 basehttp "GET /static/admin/js/core.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,942 basehttp "GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,937 basehttp "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,952 basehttp "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,953 basehttp "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,956 basehttp "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,954 basehttp "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,958 basehttp "GET /static/admin/img/search.svg HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,966 basehttp "GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:33,972 basehttp "GET /static/admin/js/filters.js HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:34,017 basehttp "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-07-25 01:58:34,039 basehttp "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:34,040 basehttp "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 304 0
+INFO 2026-07-25 01:58:34,041 basehttp "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0
+INFO 2026-07-25 02:00:55,411 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\views.py changed, reloading.
+INFO 2026-07-25 02:00:57,249 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 02:05:34,715 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\views.py changed, reloading.
+INFO 2026-07-25 02:05:36,628 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 02:05:52,197 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:05:52,359 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:05:52,647 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:05:52,812 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:05:52,966 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:06:39,709 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
+INFO 2026-07-25 02:06:41,496 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:07:06,016 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 02:07:20,408 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 523
+INFO 2026-07-25 02:07:24,002 basehttp "POST /api/v1/reservations/fulfill/ HTTP/1.1" 200 505
+INFO 2026-07-25 02:07:26,510 basehttp "GET /api/v1/reservations/queue/?status=APPROVED HTTP/1.1" 200 557
+INFO 2026-07-25 02:07:36,906 basehttp "GET /api/v1/reservations/queue/?status=REJECTED HTTP/1.1" 200 557
+INFO 2026-07-25 02:07:48,011 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 02:07:55,125 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:07:57,013 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 02:09:20,898 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:09:20,949 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:09:20,954 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:09:21,555 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:09:21,559 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:09:21,560 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:09:47,105 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 02:10:00,404 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:10:00,410 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:10:00,412 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:10:12,748 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:10:12,748 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:10:12,749 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:13:42,186 autoreload C:\Users\HomePC\Desktop\library\backend\apps\catalog\views.py changed, reloading.
+INFO 2026-07-25 02:13:44,597 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 02:13:57,261 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:13:57,261 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:13:57,262 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:14:51,925 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 02:14:52,190 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:14:52,202 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:14:52,207 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:17:15,374 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:17:23,688 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3396
+INFO 2026-07-25 02:17:41,698 basehttp "PUT /api/v1/catalog/books/14569262-a722-4c01-9ad2-314e833418a7/ HTTP/1.1" 200 471
+INFO 2026-07-25 02:20:32,460 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:20:42,174 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:20:42,178 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:20:42,182 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:22:10,456 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:22:12,994 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-25 02:22:15,092 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:22:17,871 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:25:14,348 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:25:14,350 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:25:14,353 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:25:14,438 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:25:29,855 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:25:30,155 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:25:30,160 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:25:30,162 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:25:39,747 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:25:39,752 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:25:39,755 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:25:39,756 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:25:57,143 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:25:57,145 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:25:57,146 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:25:57,174 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:28:41,996 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:28:42,000 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:28:42,004 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:30:51,334 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:30:51,537 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:30:51,548 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:31:00,903 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:31:00,905 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:31:00,943 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:32:03,142 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:32:03,165 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:32:03,175 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:32:13,157 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:32:13,158 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:32:13,167 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:34:29,302 autoreload C:\Users\HomePC\Desktop\library\backend\apps\transactions\models.py changed, reloading.
+INFO 2026-07-25 02:34:30,882 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 02:34:37,725 autoreload C:\Users\HomePC\Desktop\library\backend\apps\transactions\serializers.py changed, reloading.
+INFO 2026-07-25 02:34:39,493 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 02:35:33,008 autoreload C:\Users\HomePC\Desktop\library\backend\apps\transactions\serializers.py changed, reloading.
+INFO 2026-07-25 02:35:34,736 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 02:35:58,897 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:35:59,158 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:35:59,160 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:35:59,168 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:35:59,249 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:35:59,254 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:35:59,261 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:36:13,950 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:36:15,734 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:36:15,736 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:36:15,736 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:36:24,144 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:36:24,150 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:36:24,153 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:37:06,136 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:37:07,180 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:37:07,186 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:37:07,190 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:37:50,488 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:38:27,152 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:38:27,155 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:38:27,156 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:38:27,270 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:38:49,796 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:38:51,570 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 89
+INFO 2026-07-25 02:40:21,064 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 02:41:34,437 autoreload C:\Users\HomePC\Desktop\library\backend\apps\transactions\views.py changed, reloading.
+INFO 2026-07-25 02:41:36,268 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 02:41:47,344 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1404
+INFO 2026-07-25 02:41:47,442 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:41:47,446 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:41:47,448 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:41:56,160 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:41:56,164 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:41:56,166 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:41:56,369 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1404
+INFO 2026-07-25 02:42:06,165 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:42:06,167 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:42:06,170 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:42:06,282 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1404
+INFO 2026-07-25 02:42:09,406 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:43:10,303 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:43:10,314 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:43:10,319 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:43:10,690 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1404
+INFO 2026-07-25 02:43:23,319 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1404
+INFO 2026-07-25 02:43:24,169 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:43:24,170 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:43:24,174 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:43:32,552 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1404
+INFO 2026-07-25 02:43:33,189 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:43:33,191 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:43:33,196 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:43:45,733 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:43:50,900 basehttp "POST /api/v1/transactions/access-logs/scan/ HTTP/1.1" 201 315
+INFO 2026-07-25 02:43:50,965 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:22,328 basehttp "GET /api/v1/transactions/access-logs/?period=WEEK&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:23,873 basehttp "GET /api/v1/transactions/access-logs/?period=MONTH&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:25,408 basehttp "GET /api/v1/transactions/access-logs/?period=YEAR&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:27,104 basehttp "GET /api/v1/transactions/access-logs/?period=WEEK&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:27,763 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:28,472 basehttp "GET /api/v1/transactions/access-logs/?period=WEEK&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:28,974 basehttp "GET /api/v1/transactions/access-logs/?period=MONTH&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:29,522 basehttp "GET /api/v1/transactions/access-logs/?period=YEAR&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:30,755 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:31,192 basehttp "GET /api/v1/transactions/access-logs/?period=WEEK&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:31,915 basehttp "GET /api/v1/transactions/access-logs/?period=MONTH&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:32,444 basehttp "GET /api/v1/transactions/access-logs/?period=YEAR&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:34,572 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:49,972 basehttp "GET /api/v1/transactions/access-logs/?period=WEEK&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:52,745 basehttp "GET /api/v1/transactions/access-logs/?period=MONTH&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:57,297 basehttp "GET /api/v1/transactions/access-logs/?period=WEEK&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:44:59,305 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1641
+INFO 2026-07-25 02:45:22,685 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:45:28,094 basehttp "POST /api/v1/reservations/fulfill/ HTTP/1.1" 200 505
+INFO 2026-07-25 02:45:30,295 basehttp "GET /api/v1/reservations/queue/?status=APPROVED HTTP/1.1" 200 557
+INFO 2026-07-25 02:45:45,912 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-25 02:45:46,992 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:47:25,475 autoreload C:\Users\HomePC\Desktop\library\backend\apps\reservations\views.py changed, reloading.
+INFO 2026-07-25 02:47:27,114 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 02:48:02,182 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:48:02,645 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:48:02,649 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:48:02,654 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:49:57,395 basehttp "GET /api/v1/reservations/queue/?status=APPROVED HTTP/1.1" 200 52
+INFO 2026-07-25 02:49:58,600 basehttp "GET /api/v1/reservations/queue/?status=REJECTED HTTP/1.1" 200 52
+INFO 2026-07-25 02:50:00,509 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:50:36,248 basehttp "POST /api/v1/reservations/fulfill/ HTTP/1.1" 200 505
+INFO 2026-07-25 02:50:36,297 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:50:39,250 basehttp "POST /api/v1/reservations/fulfill/ HTTP/1.1" 200 505
+INFO 2026-07-25 02:50:39,294 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 557
+INFO 2026-07-25 02:51:04,337 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 907
+INFO 2026-07-25 02:51:04,467 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 292
+INFO 2026-07-25 02:51:10,846 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:51:14,151 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-25 02:51:19,156 basehttp "GET /api/v1/policies/ HTTP/1.1" 200 433
+INFO 2026-07-25 02:51:24,459 basehttp "GET /api/v1/analytics/system/logs/ HTTP/1.1" 200 10656
+INFO 2026-07-25 02:51:29,517 basehttp "GET /api/v1/policies/ HTTP/1.1" 200 433
+INFO 2026-07-25 02:51:33,462 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-25 02:51:33,594 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:51:33,625 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:51:33,631 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+WARNING 2026-07-25 02:51:41,039 log Bad Request: /api/v1/transactions/renew/
+WARNING 2026-07-25 02:51:41,040 basehttp "POST /api/v1/transactions/renew/ HTTP/1.1" 400 61
+INFO 2026-07-25 02:51:57,242 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-25 02:52:23,946 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-25 02:53:27,199 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 907
+INFO 2026-07-25 02:53:27,321 basehttp "GET /api/v1/policies/ HTTP/1.1" 200 433
+INFO 2026-07-25 02:54:02,573 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:54:02,576 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:54:02,579 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:54:41,242 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:54:41,258 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:54:41,261 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:54:54,498 basehttp "GET /api/v1/policies/ HTTP/1.1" 200 433
+INFO 2026-07-25 02:54:54,929 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:54:54,934 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:54:54,935 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:55:10,175 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:55:10,176 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:55:10,185 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:55:38,146 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:55:47,244 basehttp "GET /api/v1/policies/ HTTP/1.1" 200 433
+INFO 2026-07-25 02:55:48,895 basehttp "GET /api/v1/analytics/system/logs/ HTTP/1.1" 200 10465
+INFO 2026-07-25 02:55:53,943 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 292
+INFO 2026-07-25 02:56:44,337 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:56:44,343 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:56:44,348 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:56:51,178 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:56:51,179 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:56:51,183 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:57:47,596 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:57:47,608 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:57:47,610 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:57:58,610 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 292
+INFO 2026-07-25 02:57:58,989 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 292
+INFO 2026-07-25 02:57:59,135 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:57:59,137 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:57:59,139 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:58:05,867 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 292
+INFO 2026-07-25 02:58:06,140 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:58:06,144 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:58:06,146 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:58:16,179 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:58:16,185 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:58:16,192 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:58:25,584 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:58:25,589 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:58:25,592 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:58:34,129 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:58:34,136 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:58:34,136 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:58:53,626 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 02:58:53,629 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 02:58:53,631 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 02:59:31,173 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 02:59:49,269 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-25 02:59:54,302 basehttp "GET /api/v1/policies/ HTTP/1.1" 200 433
+INFO 2026-07-25 02:59:57,804 basehttp "GET /api/v1/analytics/system/logs/ HTTP/1.1" 200 10174
+INFO 2026-07-25 23:44:24,694 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 23:45:47,959 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 292
+INFO 2026-07-25 23:45:53,007 basehttp "GET /api/v1/analytics/system/logs/ HTTP/1.1" 200 10090
+INFO 2026-07-25 23:45:54,433 basehttp "GET /api/v1/policies/ HTTP/1.1" 200 433
+INFO 2026-07-25 23:45:55,489 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-25 23:45:59,159 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-25 23:46:04,819 basehttp "GET /api/v1/analytics/overview/ HTTP/1.1" 200 292
+INFO 2026-07-25 23:46:27,523 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-25 23:46:27,627 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 23:46:27,653 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 23:46:27,657 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 23:48:08,733 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 23:48:08,739 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 23:48:08,748 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-25 23:48:36,484 autoreload C:\Users\HomePC\Desktop\library\backend\apps\policies\models.py changed, reloading.
+INFO 2026-07-25 23:48:38,386 autoreload Watching for file changes with StatReloader
+INFO 2026-07-25 23:56:40,310 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-25 23:56:43,646 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-25 23:56:55,529 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-25 23:56:55,532 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-25 23:56:55,537 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-26 00:00:48,305 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-26 00:00:48,310 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-26 00:00:48,312 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-26 00:00:49,810 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-26 00:00:55,472 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-26 00:00:55,483 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 557
+INFO 2026-07-26 00:00:55,484 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-26 00:01:09,675 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-26 00:01:30,112 basehttp "POST /api/v1/reservations/reserve/ HTTP/1.1" 201 472
+INFO 2026-07-26 00:02:07,658 basehttp "GET /api/v1/transactions/my-loans/ HTTP/1.1" 200 672
+INFO 2026-07-26 00:02:07,660 basehttp "GET /api/v1/fines/my-fines/ HTTP/1.1" 200 445
+INFO 2026-07-26 00:02:07,661 basehttp "GET /api/v1/reservations/my-reservations/ HTTP/1.1" 200 1030
+INFO 2026-07-26 00:02:46,798 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-26 00:03:04,380 basehttp "GET /api/v1/catalog/books/?search=c HTTP/1.1" 200 3483
+INFO 2026-07-26 00:03:04,873 basehttp "GET /api/v1/catalog/books/?search=ch HTTP/1.1" 200 2694
+INFO 2026-07-26 00:03:05,279 basehttp "GET /api/v1/catalog/books/?search=chi HTTP/1.1" 200 1902
+INFO 2026-07-26 00:07:35,638 autoreload C:\Users\HomePC\Desktop\library\backend\config\settings.py changed, reloading.
+INFO 2026-07-26 00:07:37,282 autoreload Watching for file changes with StatReloader
+INFO 2026-07-26 00:07:44,903 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\models.py changed, reloading.
+INFO 2026-07-26 00:07:46,569 autoreload Watching for file changes with StatReloader
+INFO 2026-07-26 00:07:51,109 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\models.py changed, reloading.
+INFO 2026-07-26 00:07:52,936 autoreload Watching for file changes with StatReloader
+INFO 2026-07-26 00:07:59,527 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\serializers.py changed, reloading.
+INFO 2026-07-26 00:08:01,334 autoreload Watching for file changes with StatReloader
+INFO 2026-07-26 00:08:09,173 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\views.py changed, reloading.
+INFO 2026-07-26 00:08:11,489 autoreload Watching for file changes with StatReloader
+INFO 2026-07-26 00:08:18,450 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\urls.py changed, reloading.
+INFO 2026-07-26 00:08:20,008 autoreload Watching for file changes with StatReloader
+INFO 2026-07-26 00:33:27,239 autoreload Watching for file changes with StatReloader
