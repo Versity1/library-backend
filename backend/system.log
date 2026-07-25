@@ -615,3 +615,8 @@ INFO 2026-07-26 00:08:11,489 autoreload Watching for file changes with StatReloa
 INFO 2026-07-26 00:08:18,450 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\urls.py changed, reloading.
 INFO 2026-07-26 00:08:20,008 autoreload Watching for file changes with StatReloader
 INFO 2026-07-26 00:33:27,239 autoreload Watching for file changes with StatReloader
+INFO 2026-07-26 00:33:41,341 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 919
+INFO 2026-07-26 00:33:41,508 basehttp "GET /api/v1/reservations/queue/?status=PENDING HTTP/1.1" 200 1030
+INFO 2026-07-26 00:33:59,798 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3483
+INFO 2026-07-26 00:34:03,098 basehttp "GET /api/v1/auth/admin/users/ HTTP/1.1" 200 1619
+INFO 2026-07-26 00:35:24,536 basehttp "GET /api/v1/transactions/access-logs/?period=TODAY&search= HTTP/1.1" 200 1641
