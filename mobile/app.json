@@ -21,6 +21,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "691a6fa8-1af2-4fd1-81a2-1b75ca7f3ec2"
+      }
+    },
+    "owner": "versity1"
   }
 }
