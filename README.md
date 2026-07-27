@@ -1,7 +1,8 @@
 # Shelfie: An Automated Mobile Library Management and Physical Asset Tracking System with Computer Vision Optical Recognition
 
-**Research Area:** Mobile Computing, Distributed Software Engineering, Database Systems, Computer Vision  
-**Document Context:** Technical Methodology, System Design, Implementation, and Experimental Results Evaluation  
+**Academic Discipline:** B.Sc. Computer Science & Software Engineering Final Year Thesis Project  
+**Research Area:** Mobile Computing, Distributed Software Engineering, Database Systems (MySQL RDBMS), Computer Vision  
+**Document Context:** Technical Methodology (Chapter 3 Design) & Implementation / Benchmarks (Chapter 4 Results)  
 
 ---
 
@@ -64,14 +65,14 @@ The platform follows a **Clean Layered Architecture**, establishing strict bound
                                       |
        +------------------------------v------------------------------+
        |                     DATA PERSISTENCE LAYER                  |
-       |     (Object-Relational Mapping / SQLite / File Storage)     |
+       |     (Object-Relational Mapping / MySQL RDBMS / File Storage) |
        +-------------------------------------------------------------+
 ```
 
 1. **Presentation Layer**: React Native mobile interface rendering views (`SmartCatalogScreen`, `LibrarianInventoryScreen`, `ScannerScreen`, `SplashScreen`).
 2. **API Gateway / Security Layer**: Django REST Framework middleware managing CORS, SimpleJWT authentication tokens, and Role-Based Access Control (RBAC).
 3. **Domain Layer**: Core business engines governing hold reservation priorities, active loan state transitions, and fine calculation algorithms.
-4. **Persistence Layer**: Relational database ORM and physical file system storage (`media/book_covers/`).
+4. **Persistence Layer**: MySQL Relational Database (ORM) and physical file system storage (`media/book_covers/`).
 
 ---
 
@@ -83,6 +84,7 @@ The platform follows a **Clean Layered Architecture**, establishing strict bound
 |---|---|---|---|
 | **Backend Engine** | Python / Django | 3.14 / 5.x | High ORM expressive power, built-in migration engine, robust security middleware. |
 | **REST API Framework** | Django REST Framework | 3.15+ | Declarative serializers, content negotiation, uniform HTTP status mechanics. |
+| **Database Engine** | MySQL RDBMS | 8.0+ | Relational integrity, ACID compliance, foreign key indexing, concurrent multi-client read/writes. |
 | **Mobile Client** | React Native / Expo | SDK 54 | Single codebase cross-platform target, high-frame-rate native UI rendering. |
 | **Type Safety** | TypeScript | 5.x | Strict static typing, eliminating null pointer and undefined reference crashes. |
 | **Optical Vision** | Expo Camera | CameraView | Low-latency hardware-accelerated video frame processing for QR detection. |
@@ -143,7 +145,7 @@ flowchart TD
     end
 
     subgraph Storage["Persistence Layer"]
-        DB[("SQLite Database ORM")]
+        DB[("MySQL Database RDBMS")]
         Media["FileSystem Media Storage (/media/book_covers/)"]
     end
 
@@ -169,19 +171,19 @@ flowchart TD
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Student / Librarian
-    participant Mobile as ScannerScreen (Expo Camera)
-    participant API as Django REST API (/copies/scan/)
-    participant DB as Database (BookCopy & Book)
+    actor User as "Student / Librarian"
+    participant Mobile as "ScannerScreen (Expo Camera)"
+    participant API as "Django REST API Gateway"
+    participant DB as "MySQL Database Engine"
 
     User->>Mobile: Opens Optical Scanner View
     Mobile->>Mobile: Starts Camera Feed (CameraView)
     Mobile->>Mobile: Detects Optical Matrix (ISO/IEC 18004)
     Mobile->>API: GET /api/v1/catalog/copies/scan/?qr_code_id={QR_ID}
-    API->>DB: Query BookCopy record matching qr_code_id
-    DB-->>API: Returns BookCopy Entity + Linked Book Object
+    API->>DB: Query BookCopy & Book records by qr_code_id
+    DB-->>API: Return SQL result set (BookCopy + Book entity)
     API->>API: BookCopyScanSerializer builds absolute cover_image_url
-    API-->>Mobile: 200 OK Response (JSON with metadata + full URL)
+    API-->>Mobile: 200 OK Response (JSON with metadata + absolute image URL)
     Mobile-->>User: Renders Bottom Sheet Card with Asset Details
 ```
 
@@ -410,18 +412,24 @@ The backend service was benchmarked under simulated concurrent student requests 
    source venv/bin/activate
    ```
 
-3. Install required Python packages:
+3. Install required Python packages (including MySQL database driver):
    ```bash
-   pip install django djangorestframework django-cors-headers Pillow python-dotenv djangorestframework-simplejwt
+   pip install django djangorestframework django-cors-headers Pillow python-dotenv djangorestframework-simplejwt mysqlclient
    ```
 
-4. Apply database schema migrations:
+4. Configure MySQL Database Server:
+   Create the target MySQL relational database in your MySQL Server console:
+   ```sql
+   CREATE DATABASE shelfie_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+
+5. Apply database schema migrations to MySQL:
    ```bash
    python manage.py makemigrations catalog users transactions reservations fines
    python manage.py migrate
    ```
 
-5. Launch the backend API server bound to local network address:
+6. Launch the backend API server bound to local network address:
    ```bash
    python manage.py runserver 0.0.0.0:8000
    ```
