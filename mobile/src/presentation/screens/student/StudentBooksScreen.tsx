@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Image, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Image, TouchableOpacity, TextInput, Platform, RefreshControl } from 'react-native';
 import { BookOpen, Bookmark, Search, Scan, CreditCard, ExternalLink, ShieldAlert } from 'lucide-react-native';
 import { apiClient } from '../../../core/utils/http';
 import { API_ENDPOINTS } from '../../../core/constants/api';
@@ -17,6 +17,7 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [fines, setFines] = useState<Fine[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -78,6 +79,12 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
 
   const totalFines = fines.reduce((sum, f) => sum + (f.status === 'UNPAID' ? Number(f.amount) : 0), 0);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
   if (loading) {
     return (
       <View style={[s.bg, s.center]}>
@@ -87,7 +94,11 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
   }
 
   return (
-    <ScrollView style={s.bg} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40 }}>
+    <ScrollView 
+      style={s.bg} 
+      contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40 }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0A192F']} tintColor="#0A192F" />}
+    >
       
       {/* Welcome & Search Card */}
       <View style={s.welcomeCard}>

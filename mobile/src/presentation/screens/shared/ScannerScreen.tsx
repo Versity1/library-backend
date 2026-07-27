@@ -3,8 +3,17 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet,
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { QrCode, ArrowLeft, HelpCircle, CheckCircle2, BookOpen, X, MapPin } from 'lucide-react-native';
 import { apiClient } from '../../../core/utils/http';
-import { API_ENDPOINTS } from '../../../core/constants/api';
+import { API_ENDPOINTS, API_BASE_URL } from '../../../core/constants/api';
 import { useAuth } from '../../context/AuthContext';
+
+// Build full image URL from possibly relative /media/ path
+const getFullImageUrl = (url?: string | null): string | null => {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  // Relative path from backend e.g. /media/book_covers/img.jpg
+  const base = API_BASE_URL.replace('/api/v1', '');
+  return `${base}${url.startsWith('/') ? '' : '/'}${url}`;
+};
 
 interface ScannerScreenProps {
   onScanSuccess?: (qrCodeId: string) => void;
@@ -192,8 +201,8 @@ export const ScannerScreen: React.FC<ScannerScreenProps> = ({ onScanSuccess }) =
 
           <View style={s.scannedCard}>
             <View style={s.bookPlaceholder}>
-              {copyDetails.cover_image_url ? (
-                <Image source={{ uri: copyDetails.cover_image_url }} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
+              {getFullImageUrl(copyDetails.cover_image_url) ? (
+                <Image source={{ uri: getFullImageUrl(copyDetails.cover_image_url)! }} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
               ) : (
                 <BookOpen size={24} color="#94A3B8" />
               )}
@@ -201,6 +210,9 @@ export const ScannerScreen: React.FC<ScannerScreenProps> = ({ onScanSuccess }) =
             <View style={{ flex: 1 }}>
               <Text style={s.bookTitle} numberOfLines={1}>{copyDetails.book_title}</Text>
               <Text style={s.bookAuthor}>{copyDetails.book_author}</Text>
+              {copyDetails.book_isbn ? (
+                <Text style={{ color: '#94A3B8', fontSize: 11, marginTop: 2, fontFamily: 'monospace' }}>ISBN: {copyDetails.book_isbn}</Text>
+              ) : null}
               <View style={s.locationRow}>
                 <MapPin size={12} color="#14B8A6" />
                 <Text style={s.bookLocation}>{copyDetails.location_shelf || 'Location Unknown'}</Text>

@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
 from .models import Category, Book, BookCopy
 from .serializers import CategorySerializer, BookSerializer, BookCopySerializer, BookCopyScanSerializer
@@ -20,6 +21,7 @@ class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all().order_by('-created_at')
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'author', 'isbn', 'department', 'category__name', 'copies__qr_code_id']
 
@@ -44,13 +46,44 @@ class BookViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
-        total_copies = serializer.validated_data.get('total_copies', 1)
-        available_copies = serializer.validated_data.get('available_copies', total_copies)
-        book = serializer.save(total_copies=total_copies, available_copies=available_copies)
+        total_copies = int(self.request.data.get('total_copies', 1))
+        available_copies = int(self.request.data.get('available_copies', total_copies))
+        cover_image = self.request.FILES.get('cover_image_url')
+        description = self.request.data.get('description')
+        
+        save_kwargs = {
+            'total_copies': total_copies,
+            'available_copies': available_copies,
+        }
+        if cover_image:
+            save_kwargs['cover_image_url'] = cover_image
+        if description:
+            save_kwargs['description'] = description
+        
+        book = serializer.save(**save_kwargs)
         
         qr_code_id = self.request.data.get('qr_code_id') or f"QR-{book.isbn}"
         if not BookCopy.objects.filter(qr_code_id=qr_code_id).exists():
             BookCopy.objects.create(book=book, qr_code_id=qr_code_id, status='AVAILABLE')
+
+    def perform_update(self, serializer):
+        cover_image = self.request.FILES.get('cover_image_url')
+        save_kwargs = {}
+        if cover_image:
+            save_kwargs['cover_image_url'] = cover_image
+        
+        # Parse numeric fields from multipart data
+        total_copies = self.request.data.get('total_copies')
+        available_copies = self.request.data.get('available_copies')
+        description = self.request.data.get('description')
+        if total_copies is not None:
+            save_kwargs['total_copies'] = int(total_copies)
+        if available_copies is not None:
+            save_kwargs['available_copies'] = int(available_copies)
+        if description is not None:
+            save_kwargs['description'] = description
+        
+        serializer.save(**save_kwargs)
 
 class BookCopyViewSet(viewsets.ModelViewSet):
     queryset = BookCopy.objects.all().order_by('-added_at')
@@ -69,5 +102,5 @@ class BookCopyViewSet(viewsets.ModelViewSet):
             return Response({'error': 'qr_code_id is required'}, status=status.HTTP_400_BAD_REQUEST)
         
         copy = get_object_or_404(BookCopy, qr_code_id=qr_code_id)
-        serializer = BookCopyScanSerializer(copy)
+        serializer = BookCopyScanSerializer(copy, context={'request': request})
         return Response(serializer.data)

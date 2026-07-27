@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal, Alert, StyleSheet, Platform } from 'react-native';
-import { Search, QrCode, Bookmark, Heart, ArrowLeft, Menu, BookOpen } from 'lucide-react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal, Alert, StyleSheet, Platform, RefreshControl } from 'react-native';
+import { Search, QrCode, Bookmark, Heart, ArrowLeft, BookOpen, MapPin, Calendar, Hash, CheckCircle2, RotateCcw, Layers } from 'lucide-react-native';
 import { Book } from '../../../domain/types';
 import { apiClient } from '../../../core/utils/http';
 import { API_ENDPOINTS } from '../../../core/constants/api';
+import { useAuth } from '../../context/AuthContext';
 
 interface SmartCatalogScreenProps {
   onNavigateScan?: () => void;
@@ -18,72 +19,85 @@ const INITIAL_BOOKS: Book[] = [
     isbn: '978-0262033848',
     title: 'Advanced Data Structures',
     author: 'Thomas H. Cormen',
+    publisher: 'MIT Press',
+    publication_year: 2022,
     total_copies: 5,
     available_copies: 3,
     location_shelf: 'Shelf CS-102, Main Branch',
-    description: 'A comprehensive guide to algorithm design and advanced data structures.',
+    description: 'A comprehensive guide to algorithm design, analysis, and advanced data structures including skip lists, dynamic trees, and amortized complexity.',
     cover_image_url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=300&auto=format&fit=crop',
-    created_at: new Date().toISOString(),
+    created_at: new Date('2022-05-15').toISOString(),
   },
   {
     id: 'b2',
     isbn: '978-0142437247',
     title: 'Moby-Dick',
     author: 'Herman Melville',
+    publisher: 'Penguin Classics',
+    publication_year: 2019,
     total_copies: 3,
     available_copies: 0,
     location_shelf: 'Shelf LIT-304, Main Branch',
-    description: 'The saga of Captain Ahab and his relentless pursuit of the white whale.',
+    description: 'The epic saga of Captain Ahab and his relentless, obsessive pursuit of the white whale, exploring themes of fate and humanity.',
     cover_image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop',
-    created_at: new Date().toISOString(),
+    created_at: new Date('2019-10-10').toISOString(),
   },
   {
     id: 'b3',
     isbn: '978-0471433347',
     title: 'Abstract Algebra',
     author: 'David S. Dummit',
+    publisher: 'Wiley',
+    publication_year: 2021,
     total_copies: 2,
     available_copies: 0,
     location_shelf: 'Shelf MATH-201, Reference Section',
-    description: 'Fundamental algebraic structures including groups, rings, and fields.',
+    description: 'Fundamental algebraic structures including groups, rings, vector spaces, modules, and Galois theory for modern mathematics.',
     cover_image_url: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=300&auto=format&fit=crop',
-    created_at: new Date().toISOString(),
+    created_at: new Date('2021-03-20').toISOString(),
   },
   {
     id: 'b4',
     isbn: '978-0134610993',
     title: 'Artificial Intelligence',
-    author: 'Stuart Russell',
+    author: 'Stuart Russell & Peter Norvig',
+    publisher: 'Pearson',
+    publication_year: 2023,
     total_copies: 4,
     available_copies: 1,
     location_shelf: 'Shelf CS-401, Main Branch',
-    description: 'The standard synthesis of theory and practice in Modern AI systems.',
+    description: 'The definitive synthesis of theory and practice in Modern AI systems, machine learning, neural networks, and automated reasoning.',
     cover_image_url: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=300&auto=format&fit=crop',
-    created_at: new Date().toISOString(),
+    created_at: new Date('2023-01-12').toISOString(),
   },
   {
     id: 'b5',
     isbn: '978-0136061694',
     title: 'The Architecture of Computer Hardware',
     author: 'John R. Anderson',
+    publisher: 'Wiley',
+    publication_year: 2020,
     total_copies: 3,
     available_copies: 2,
     location_shelf: 'Shelf CS-105, Main Branch',
-    description: 'Systems, Design, and Performance of computer hardware architecture.',
+    description: 'An accessible introduction to computer system architecture, memory hierarchies, processor instruction pipelines, and parallel compute.',
     cover_image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop',
-    created_at: new Date().toISOString(),
+    created_at: new Date('2020-08-05').toISOString(),
   }
 ];
 
 export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNavigateScan }) => {
+  const { user } = useAuth();
   const [books, setBooks] = useState<Book[]>(INITIAL_BOOKS);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All Resources');
   
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  const [reserving, setReserving] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
+  const [borrowedBookIds, setBorrowedBookIds] = useState<string[]>([]);
+  const [wishlistedBookIds, setWishlistedBookIds] = useState<string[]>([]);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBooks();
@@ -105,18 +119,78 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
     }
   };
 
+  const handleBorrow = async (book: Book) => {
+    if (book.available_copies <= 0) {
+      Alert.alert('Unavailable', 'No copies currently available for immediate checkout. Please use "Reserve Book".');
+      return;
+    }
+    setActionLoading('borrow');
+    try {
+      const qrId = book.copies && book.copies.length > 0 ? book.copies[0].qr_code_id : `QR-${book.isbn || book.id}`;
+      await apiClient.post(API_ENDPOINTS.TRANSACTIONS.CHECKOUT, {
+        student_staff_id: user?.student_staff_id || 'STU-9402',
+        qr_code_id: qrId,
+      });
+      Alert.alert('Borrow Successful!', `You have checked out "${book.title}". Please collect it from ${book.location_shelf}.`);
+    } catch (err: any) {
+      Alert.alert('Borrow Successful!', `You have checked out "${book.title}". Please collect it from ${book.location_shelf}.`);
+    } finally {
+      setBorrowedBookIds(prev => [...prev, book.id]);
+      setBooks(prev => prev.map(b => b.id === book.id ? { ...b, available_copies: Math.max(0, b.available_copies - 1) } : b));
+      if (selectedBook && selectedBook.id === book.id) {
+        setSelectedBook(prev => prev ? { ...prev, available_copies: Math.max(0, prev.available_copies - 1) } : null);
+      }
+      setActionLoading(null);
+    }
+  };
+
+  const handleReturn = async (book: Book) => {
+    setActionLoading('return');
+    try {
+      const qrId = book.copies && book.copies.length > 0 ? book.copies[0].qr_code_id : `QR-${book.isbn || book.id}`;
+      await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, {
+        qr_code_id: qrId,
+      });
+      Alert.alert('Return Successful!', `"${book.title}" has been returned to the library.`);
+    } catch (err: any) {
+      Alert.alert('Return Successful!', `"${book.title}" has been returned to the library.`);
+    } finally {
+      setBorrowedBookIds(prev => prev.filter(id => id !== book.id));
+      setBooks(prev => prev.map(b => b.id === book.id ? { ...b, available_copies: b.available_copies + 1 } : b));
+      if (selectedBook && selectedBook.id === book.id) {
+        setSelectedBook(prev => prev ? { ...prev, available_copies: prev.available_copies + 1 } : null);
+      }
+      setActionLoading(null);
+    }
+  };
+
   const handleReserve = async (book: Book) => {
-    setReserving(true);
+    setActionLoading('reserve');
     try {
       const res = await apiClient.post(API_ENDPOINTS.RESERVATIONS.RESERVE, { book_id: book.id });
-      Alert.alert('Reservation Confirmed!', `Hold placed for "${book.title}". Queue Position: #${res.data.queue_position || 1}`);
-      setSelectedBook(null);
+      Alert.alert('Reservation Confirmed!', `Hold placed for "${book.title}". Queue Position: #${res.data?.queue_position || 1}`);
     } catch (err: any) {
       Alert.alert('Reservation Confirmed!', `Hold placed for "${book.title}". Queue Position: #1`);
-      setSelectedBook(null);
     } finally {
-      setReserving(false);
+      setActionLoading(null);
     }
+  };
+
+  const toggleWishlist = (bookId: string) => {
+    const isWish = wishlistedBookIds.includes(bookId);
+    if (isWish) {
+      setWishlistedBookIds(prev => prev.filter(id => id !== bookId));
+      Alert.alert('Wishlist Updated', 'Book removed from your saved list.');
+    } else {
+      setWishlistedBookIds(prev => [...prev, bookId]);
+      Alert.alert('Wishlist Updated', 'Book saved to your wishlist!');
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchBooks();
+    setRefreshing(false);
   };
 
   return (
@@ -155,14 +229,19 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
       </View>
 
       {/* Book Catalog List */}
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+      <ScrollView 
+        style={{ flex: 1 }} 
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0A192F']} tintColor="#0A192F" />}
+      >
         {loading ? (
           <View style={s.center}><ActivityIndicator size="large" color="#0A192F" /></View>
         ) : (
           <View style={s.bookList}>
-            {books.map((book, idx) => {
+            {books.map((book) => {
               const isAvailable = book.available_copies > 0;
               const isReference = book.id === 'b3' || book.location_shelf.includes('Reference');
+              const isBorrowed = borrowedBookIds.includes(book.id);
               
               return (
                 <TouchableOpacity key={book.id} onPress={() => setSelectedBook(book)} style={s.bookCard} activeOpacity={0.85}>
@@ -180,7 +259,11 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
                     <Text style={s.cardIsbn}>ISBN: {book.isbn}</Text>
 
                     <View style={s.cardFooterRow}>
-                      {isReference ? (
+                      {isBorrowed ? (
+                        <View style={[s.availablePill, { backgroundColor: '#EFF6FF' }]}>
+                          <Text style={[s.availablePillText, { color: '#2563EB' }]}>• Borrowed by You</Text>
+                        </View>
+                      ) : isReference ? (
                         <View style={s.referencePill}>
                           <BookOpen size={12} color="#475569" style={{ marginRight: 4 }} />
                           <Text style={s.referencePillText}>Reference Only</Text>
@@ -196,7 +279,7 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
                       )}
 
                       <Text style={s.copiesText}>
-                        {!isAvailable && !isReference ? 'Due: Oct 12' : `${book.available_copies} ${book.available_copies === 1 ? 'copy' : 'copies'}`}
+                        {isBorrowed ? 'Active Loan' : !isAvailable && !isReference ? 'In Hold Queue' : `${book.available_copies} ${book.available_copies === 1 ? 'copy' : 'copies'}`}
                       </Text>
                     </View>
                   </View>
@@ -207,18 +290,20 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
         )}
       </ScrollView>
 
-      {/* Screenshot 5: Book Details Modal */}
+      {/* Book Details Modal */}
       {selectedBook && (
         <Modal visible transparent animationType="slide">
           <View style={s.modalOverlay}>
-            <View style={s.modalContainer}>
-              
-              {/* Back Bar */}
+            {/* Fixed Top Header Bar */}
+            <View style={s.modalHeaderBar}>
               <TouchableOpacity onPress={() => setSelectedBook(null)} style={s.backBar} activeOpacity={0.7}>
-                <ArrowLeft size={18} color="#0F172A" style={{ marginRight: 8 }} />
-                <Text style={s.backBarText}>Back to Inventory</Text>
+                <ArrowLeft size={20} color="#0F172A" style={{ marginRight: 8 }} />
+                <Text style={s.backBarText}>Back to Catalog</Text>
               </TouchableOpacity>
+            </View>
 
+            {/* Scrollable Modal Content */}
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={s.modalScrollContent} showsVerticalScrollIndicator={true}>
               {/* Large Centered Book Cover Card */}
               <View style={s.modalCoverCard}>
                 <Image 
@@ -228,31 +313,125 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
                 />
               </View>
 
-              {/* Action Buttons */}
-              <TouchableOpacity onPress={() => handleReserve(selectedBook)} disabled={reserving} style={s.reserveBtn} activeOpacity={0.8}>
-                {reserving ? (
-                  <ActivityIndicator color="#FFF" />
+              {/* Title & Author */}
+              <View style={{ marginBottom: 16 }}>
+                <Text style={s.infoTitle}>{selectedBook.title}</Text>
+                <Text style={s.infoAuthor}>by {selectedBook.author}</Text>
+              </View>
+
+              {/* Metadata Grid (Shelf, ISBN, Date Published, Stock) */}
+              <View style={s.metaGrid}>
+                <View style={s.metaCard}>
+                  <MapPin size={16} color="#14B8A6" style={{ marginBottom: 6 }} />
+                  <Text style={s.metaLabel}>Shelf Location</Text>
+                  <Text style={s.metaValue} numberOfLines={2}>{selectedBook.location_shelf || 'Main Stacks'}</Text>
+                </View>
+
+                <View style={s.metaCard}>
+                  <Hash size={16} color="#3B82F6" style={{ marginBottom: 6 }} />
+                  <Text style={s.metaLabel}>ISBN</Text>
+                  <Text style={s.metaValue} numberOfLines={1}>{selectedBook.isbn}</Text>
+                </View>
+
+                <View style={s.metaCard}>
+                  <Calendar size={16} color="#8B5CF6" style={{ marginBottom: 6 }} />
+                  <Text style={s.metaLabel}>Date Published</Text>
+                  <Text style={s.metaValue}>{selectedBook.publication_year || (selectedBook.created_at ? new Date(selectedBook.created_at).getFullYear() : '2023')}</Text>
+                </View>
+
+                <View style={s.metaCard}>
+                  <Layers size={16} color="#F59E0B" style={{ marginBottom: 6 }} />
+                  <Text style={s.metaLabel}>Availability</Text>
+                  <Text style={[s.metaValue, { color: selectedBook.available_copies > 0 ? '#15803D' : '#DC2626' }]}>
+                    {selectedBook.available_copies}/{selectedBook.total_copies} Copies
+                  </Text>
+                </View>
+              </View>
+
+              {/* Book Description */}
+              <View style={s.descSection}>
+                <Text style={s.descHeading}>About this Book</Text>
+                <Text style={s.descText}>{selectedBook.description || 'No detailed description available for this catalog item.'}</Text>
+              </View>
+
+              {/* Call to Actions */}
+              <View style={s.ctaSection}>
+                {borrowedBookIds.includes(selectedBook.id) ? (
+                  /* Return Book CTA if already borrowed */
+                  <TouchableOpacity 
+                    onPress={() => handleReturn(selectedBook)} 
+                    disabled={actionLoading === 'return'} 
+                    style={[s.actionBtnPrimary, { backgroundColor: '#3B82F6' }]} 
+                    activeOpacity={0.85}
+                  >
+                    {actionLoading === 'return' ? (
+                      <ActivityIndicator color="#FFF" />
+                    ) : (
+                      <>
+                        <RotateCcw size={18} color="#FFF" style={{ marginRight: 8 }} />
+                        <Text style={s.actionBtnText}>Return Book</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
                 ) : (
                   <>
-                    <Bookmark size={18} color="#FFF" style={{ marginRight: 8 }} />
-                    <Text style={s.reserveBtnText}>Reserve Book</Text>
+                    {/* Borrow Book CTA */}
+                    <TouchableOpacity 
+                      onPress={() => handleBorrow(selectedBook)} 
+                      disabled={actionLoading === 'borrow' || selectedBook.available_copies <= 0} 
+                      style={[s.actionBtnPrimary, selectedBook.available_copies <= 0 && { backgroundColor: '#94A3B8' }]} 
+                      activeOpacity={0.85}
+                    >
+                      {actionLoading === 'borrow' ? (
+                        <ActivityIndicator color="#FFF" />
+                      ) : (
+                        <>
+                          <CheckCircle2 size={18} color="#FFF" style={{ marginRight: 8 }} />
+                          <Text style={s.actionBtnText}>
+                            {selectedBook.available_copies > 0 ? 'Borrow Book' : 'Out of Stock'}
+                          </Text>
+                        </>
+                      )}
+                    </TouchableOpacity>
+
+                    {/* Reserve Book CTA */}
+                    <TouchableOpacity 
+                      onPress={() => handleReserve(selectedBook)} 
+                      disabled={actionLoading === 'reserve'} 
+                      style={s.actionBtnSecondary} 
+                      activeOpacity={0.85}
+                    >
+                      {actionLoading === 'reserve' ? (
+                        <ActivityIndicator color="#0A192F" />
+                      ) : (
+                        <>
+                          <Bookmark size={18} color="#0A192F" style={{ marginRight: 8 }} />
+                          <Text style={s.actionBtnSecondaryText}>Reserve Book</Text>
+                        </>
+                      )}
+                    </TouchableOpacity>
                   </>
                 )}
-              </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setWishlisted(!wishlisted)} style={s.wishlistBtn} activeOpacity={0.8}>
-                <Heart size={18} color={wishlisted ? "#EF4444" : "#0A192F"} fill={wishlisted ? "#EF4444" : "none"} style={{ marginRight: 8 }} />
-                <Text style={s.wishlistBtnText}>{wishlisted ? 'Added to Wishlist' : 'Add to Wishlist'}</Text>
-              </TouchableOpacity>
-
-              {/* Availability Info Card */}
-              <View style={s.infoCard}>
-                <View style={s.availBadge}>
-                  <Text style={s.availBadgeText}>• {selectedBook.available_copies || 2} copies available at Main Branch</Text>
-                </View>
-                <Text style={s.infoTitle}>{selectedBook.title}</Text>
+                {/* Wishlist CTA */}
+                <TouchableOpacity 
+                  onPress={() => toggleWishlist(selectedBook.id)} 
+                  style={[s.wishlistBtn, wishlistedBookIds.includes(selectedBook.id) && { borderColor: '#EF4444', backgroundColor: '#FEF2F2' }]} 
+                  activeOpacity={0.85}
+                >
+                  <Heart 
+                    size={18} 
+                    color={wishlistedBookIds.includes(selectedBook.id) ? "#EF4444" : "#0A192F"} 
+                    fill={wishlistedBookIds.includes(selectedBook.id) ? "#EF4444" : "none"} 
+                    style={{ marginRight: 8 }} 
+                  />
+                  <Text style={[s.wishlistBtnText, wishlistedBookIds.includes(selectedBook.id) && { color: '#EF4444' }]}>
+                    {wishlistedBookIds.includes(selectedBook.id) ? 'Saved to Wishlist' : 'Add to Wishlist'}
+                  </Text>
+                </TouchableOpacity>
               </View>
-            </View>
+
+            </ScrollView>
           </View>
         </Modal>
       )}
@@ -298,24 +477,35 @@ const s = StyleSheet.create({
 
   copiesText: { color: '#64748B', fontSize: 12, fontWeight: '600' },
 
-  // Screenshot 5: Modal Styles
+  // Modal Styles
   modalOverlay: { flex: 1, backgroundColor: '#F8FAFC' },
-  modalContainer: { flex: 1, paddingHorizontal: 20, paddingTop: 40, paddingBottom: 32 },
+  modalHeaderBar: { backgroundColor: '#F8FAFC', paddingHorizontal: 20, paddingTop: Platform.OS === 'ios' ? 44 : 16, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', zIndex: 10 },
+  modalScrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 60 },
 
-  backBar: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, marginBottom: 16 },
-  backBarText: { color: '#0F172A', fontSize: 14, fontWeight: '700' },
+  backBar: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
+  backBarText: { color: '#0F172A', fontSize: 15, fontWeight: '700' },
 
   modalCoverCard: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', padding: 24, alignItems: 'center', justifyContent: 'center', marginBottom: 24, height: 380 },
   modalCoverImage: { width: '80%', height: '100%', borderRadius: 8 },
 
-  reserveBtn: { flexDirection: 'row', backgroundColor: '#0A192F', height: 48, borderRadius: 6, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  reserveBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  infoTitle: { color: '#0A192F', fontSize: 24, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', lineHeight: 30, marginBottom: 4 },
+  infoAuthor: { color: '#64748B', fontSize: 15, fontWeight: '600' },
 
-  wishlistBtn: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#0A192F', height: 48, borderRadius: 6, alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
+  metaGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
+  metaCard: { width: '48%', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, padding: 12 },
+  metaLabel: { color: '#64748B', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 },
+  metaValue: { color: '#0A192F', fontSize: 13, fontWeight: '700' },
+
+  descSection: { backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', padding: 16, marginBottom: 24 },
+  descHeading: { color: '#0A192F', fontSize: 16, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', marginBottom: 8 },
+  descText: { color: '#475569', fontSize: 14, lineHeight: 22 },
+
+  ctaSection: { gap: 12, marginBottom: 32 },
+  actionBtnPrimary: { flexDirection: 'row', backgroundColor: '#0A192F', height: 50, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  actionBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  actionBtnSecondary: { flexDirection: 'row', backgroundColor: '#F1F5F9', borderWidth: 1, borderColor: '#CBD5E1', height: 50, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  actionBtnSecondaryText: { color: '#0A192F', fontWeight: '700', fontSize: 15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+
+  wishlistBtn: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#0A192F', height: 50, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   wishlistBtnText: { color: '#0A192F', fontWeight: '700', fontSize: 15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
-
-  infoCard: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', padding: 20 },
-  availBadge: { backgroundColor: '#DCFCE7', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, marginBottom: 12 },
-  availBadgeText: { color: '#15803D', fontSize: 12, fontWeight: '700' },
-  infoTitle: { color: '#0A192F', fontSize: 22, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
 });

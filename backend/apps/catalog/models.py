@@ -22,7 +22,7 @@ class Book(models.Model):
     publisher = models.CharField(max_length=255, blank=True, null=True)
     publication_year = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    cover_image_url = models.URLField(max_length=500, blank=True, null=True)
+    cover_image_url = models.ImageField(upload_to='book_covers/', max_length=500, blank=True, null=True)
     location_shelf = models.CharField(max_length=50, help_text="e.g. Shelf 4B, Row 2")
     total_copies = models.PositiveIntegerField(default=0)
     available_copies = models.PositiveIntegerField(default=0)

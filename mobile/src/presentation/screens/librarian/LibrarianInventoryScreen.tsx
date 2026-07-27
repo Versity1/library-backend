@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, Image, Platform } from 'react-native';
-import { Plus, Search, QrCode, X, BookOpen, ChevronLeft, ChevronRight, Scan, Edit2, Trash2, Camera, Layers, CheckCircle2 } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, Image, Platform, RefreshControl } from 'react-native';
+import { Plus, Search, QrCode, X, BookOpen, ChevronLeft, ChevronRight, Scan, Edit2, Trash2, Camera, Layers, CheckCircle2, ImagePlus, Upload } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { apiClient } from '../../../core/utils/http';
-import { API_ENDPOINTS } from '../../../core/constants/api';
+import { API_ENDPOINTS, API_BASE_URL } from '../../../core/constants/api';
 import { ScannerScreen } from '../shared/ScannerScreen';
+
+// Build full image URL from possibly relative /media/ path
+const getFullImageUrl = (url?: string | null): string | null => {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  const base = API_BASE_URL.replace('/api/v1', '');
+  return `${base}${url.startsWith('/') ? '' : '/'}${url}`;
+};
 
 export interface InventoryBookItem {
   id: string;
@@ -16,71 +25,18 @@ export interface InventoryBookItem {
   cover_image_url: string;
   location_shelf: string;
   qr_code_id: string;
+  description?: string;
 }
 
-const PRESET_COVERS = [
-  'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=300&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=300&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=300&auto=format&fit=crop',
-];
 
-const INITIAL_INVENTORY: InventoryBookItem[] = [
-  {
-    id: 'inv_1',
-    title: 'The Art of Archiving',
-    author: 'Eleanor Vance, PhD',
-    isbn: '978-0262033848',
-    total_copies: 10,
-    available_copies: 8,
-    status: 'In Stock',
-    cover_image_url: PRESET_COVERS[0],
-    location_shelf: 'Shelf ARC-1',
-    qr_code_id: 'QR-978-0262033848',
-  },
-  {
-    id: 'inv_2',
-    title: 'Quantum Paradigms',
-    author: 'Julian Barnes',
-    isbn: '978-0142437247',
-    total_copies: 3,
-    available_copies: 1,
-    status: 'Low Stock',
-    cover_image_url: PRESET_COVERS[1],
-    location_shelf: 'Shelf PHY-4',
-    qr_code_id: 'QR-978-0142437247',
-  },
-  {
-    id: 'inv_3',
-    title: 'Classical Narratives',
-    author: 'Charles Dickens (Annotated)',
-    isbn: '978-0471433347',
-    total_copies: 5,
-    available_copies: 0,
-    status: 'Out of Stock',
-    cover_image_url: PRESET_COVERS[2],
-    location_shelf: 'Shelf LIT-2',
-    qr_code_id: 'QR-978-0471433347',
-  },
-  {
-    id: 'inv_4',
-    title: 'Scalable Architectures',
-    author: 'Martin Kleppmann',
-    isbn: '978-0134610993',
-    total_copies: 12,
-    available_copies: 12,
-    status: 'In Stock',
-    cover_image_url: PRESET_COVERS[3],
-    location_shelf: 'Shelf CS-102',
-    qr_code_id: 'QR-978-0134610993',
-  }
-];
+const INITIAL_INVENTORY: InventoryBookItem[] = [];
 
 const FILTER_PILLS = ['All Items', 'In Stock', 'Low Stock', 'Out of Stock'];
 
 export const LibrarianInventoryScreen: React.FC = () => {
   const [books, setBooks] = useState<InventoryBookItem[]>(INITIAL_INVENTORY);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All Items');
 
@@ -98,9 +54,11 @@ export const LibrarianInventoryScreen: React.FC = () => {
     total_copies: '5',
     available_copies: '5',
     location_shelf: '',
-    cover_image_url: PRESET_COVERS[0],
+    description: '',
     qr_code_id: '',
   });
+  const [coverImageUri, setCoverImageUri] = useState<string | null>(null);
+  const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -114,7 +72,7 @@ export const LibrarianInventoryScreen: React.FC = () => {
       const data = Array.isArray(res.data) ? res.data : (res.data.results || []);
       if (data && data.length > 0) {
         const mapped = data.map((b: any) => {
-          const tot = b.total_copies ?? 5;
+          const tot = b.total_copies ?? 0;
           const avail = b.available_copies ?? tot;
           const st = avail > 2 ? 'In Stock' : avail > 0 ? 'Low Stock' : 'Out of Stock';
           return {
@@ -125,8 +83,9 @@ export const LibrarianInventoryScreen: React.FC = () => {
             total_copies: tot,
             available_copies: avail,
             status: st as any,
-            cover_image_url: b.cover_image_url || PRESET_COVERS[0],
+            cover_image_url: b.cover_image_url || null,
             location_shelf: b.location_shelf || 'Main Stacks',
+            description: b.description || '',
             qr_code_id: b.copies && b.copies.length > 0 ? b.copies[0].qr_code_id : `QR-${b.isbn || b.id}`,
           };
         });
@@ -148,9 +107,11 @@ export const LibrarianInventoryScreen: React.FC = () => {
       total_copies: '5',
       available_copies: '5',
       location_shelf: '',
-      cover_image_url: PRESET_COVERS[0],
+      description: '',
       qr_code_id: `QR-${Math.floor(100000 + Math.random() * 900000)}`,
     });
+    setCoverImageUri(null);
+    setExistingCoverUrl(null);
     setIsModalOpen(true);
   };
 
@@ -163,10 +124,40 @@ export const LibrarianInventoryScreen: React.FC = () => {
       total_copies: String(book.total_copies),
       available_copies: String(book.available_copies),
       location_shelf: book.location_shelf,
-      cover_image_url: book.cover_image_url,
+      description: book.description || '',
       qr_code_id: book.qr_code_id,
     });
+    setCoverImageUri(null);
+    setExistingCoverUrl(getFullImageUrl(book.cover_image_url));
     setIsModalOpen(true);
+  };
+
+  const pickImage = async (useCamera: boolean) => {
+    try {
+      if (useCamera) {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission Required', 'Camera access is needed to take photos.');
+          return;
+        }
+      } else {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission Required', 'Gallery access is needed to select images.');
+          return;
+        }
+      }
+
+      const result = useCamera
+        ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [2, 3], quality: 0.8 })
+        : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [2, 3], quality: 0.8 });
+
+      if (!result.canceled && result.assets[0]) {
+        setCoverImageUri(result.assets[0].uri);
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Failed to pick image');
+    }
   };
 
   const handleSaveBook = async () => {
@@ -180,35 +171,71 @@ export const LibrarianInventoryScreen: React.FC = () => {
     const st: 'In Stock' | 'Low Stock' | 'Out of Stock' = avail > 2 ? 'In Stock' : avail > 0 ? 'Low Stock' : 'Out of Stock';
 
     setSaving(true);
-    const payload = {
-      title: formData.title,
-      author: formData.author,
-      isbn: formData.isbn,
-      total_copies: tot,
-      available_copies: avail,
-      location_shelf: formData.location_shelf || 'Main Shelf',
-      cover_image_url: formData.cover_image_url,
-      qr_code_id: formData.qr_code_id || `QR-${formData.isbn}`,
-    };
+
+    // Build FormData for multipart upload
+    const fd = new FormData();
+    fd.append('title', formData.title);
+    fd.append('author', formData.author);
+    fd.append('isbn', formData.isbn);
+    fd.append('total_copies', String(tot));
+    fd.append('available_copies', String(avail));
+    fd.append('location_shelf', formData.location_shelf || 'Main Shelf');
+    fd.append('description', formData.description || '');
+    fd.append('qr_code_id', formData.qr_code_id || `QR-${formData.isbn}`);
+
+    if (coverImageUri) {
+      const filename = coverImageUri.split('/').pop() || 'cover.jpg';
+      const ext = filename.split('.').pop()?.toLowerCase() || 'jpg';
+      const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
+      fd.append('cover_image_url', {
+        uri: coverImageUri,
+        name: filename,
+        type: mimeType,
+      } as any);
+    }
 
     try {
       if (editingBook) {
-        await apiClient.put(`${API_ENDPOINTS.CATALOG.BOOKS}${editingBook.id}/`, payload).catch(() => {});
-        setBooks(prev => prev.map(b => b.id === editingBook.id ? { ...b, ...payload, status: st } : b));
+        const res = await apiClient.put(`${API_ENDPOINTS.CATALOG.BOOKS}${editingBook.id}/`, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        const updatedImageUrl = res.data?.cover_image_url || existingCoverUrl;
+        setBooks(prev => prev.map(b => b.id === editingBook.id ? {
+          ...b,
+          title: formData.title,
+          author: formData.author,
+          isbn: formData.isbn,
+          total_copies: tot,
+          available_copies: avail,
+          location_shelf: formData.location_shelf || 'Main Shelf',
+          description: formData.description,
+          cover_image_url: updatedImageUrl,
+          status: st,
+        } : b));
         Alert.alert('Success', `"${formData.title}" updated.`);
       } else {
-        const res = await apiClient.post(API_ENDPOINTS.CATALOG.BOOKS, payload).catch(() => null);
+        const res = await apiClient.post(API_ENDPOINTS.CATALOG.BOOKS, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         const created: InventoryBookItem = {
           id: res?.data?.id ? String(res.data.id) : `inv_${Date.now()}`,
-          ...payload,
+          title: formData.title,
+          author: formData.author,
+          isbn: formData.isbn,
+          total_copies: tot,
+          available_copies: avail,
+          location_shelf: formData.location_shelf || 'Main Shelf',
+          description: formData.description,
+          cover_image_url: res?.data?.cover_image_url || null,
+          qr_code_id: formData.qr_code_id || `QR-${formData.isbn}`,
           status: st,
         };
         setBooks([created, ...books]);
         Alert.alert('Success', `"${created.title}" added to inventory (${tot} copies).`);
       }
       setIsModalOpen(false);
-    } catch (e) {
-      Alert.alert('Error', 'Failed to save book');
+    } catch (e: any) {
+      Alert.alert('Error', e.response?.data?.detail || e.response?.data?.isbn?.[0] || 'Failed to save book');
     } finally {
       setSaving(false);
     }
@@ -244,6 +271,12 @@ export const LibrarianInventoryScreen: React.FC = () => {
                           b.isbn.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchBooks();
+    setRefreshing(false);
+  };
 
   return (
     <View style={s.bg}>
@@ -284,7 +317,11 @@ export const LibrarianInventoryScreen: React.FC = () => {
       </View>
 
       {/* Main Table View */}
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}>
+      <ScrollView 
+        style={{ flex: 1 }} 
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0A192F']} tintColor="#0A192F" />}
+      >
         <View style={s.tableContainer}>
           {/* Table Header */}
           <View style={s.tableHeaderRow}>
@@ -300,7 +337,7 @@ export const LibrarianInventoryScreen: React.FC = () => {
               <View key={item.id} style={[s.tableRow, idx === filteredBooks.length - 1 && { borderBottomWidth: 0 }]}>
                 {/* Book Details Column */}
                 <View style={s.bookCol}>
-                  <Image source={{ uri: item.cover_image_url }} style={s.bookCover} resizeMode="cover" />
+                  <Image source={{ uri: getFullImageUrl(item.cover_image_url) || undefined }} style={s.bookCover} resizeMode="cover" defaultSource={require('../../../../assets/icon.png')} />
                   <View style={s.bookTextGroup}>
                     <Text style={s.bookTitle} numberOfLines={2}>{item.title}</Text>
                     <Text style={s.bookAuthor}>{item.author}</Text>
@@ -385,6 +422,17 @@ export const LibrarianInventoryScreen: React.FC = () => {
             <Text style={[s.fieldLabel, { marginTop: 14 }]}>ISBN *</Text>
             <TextInput style={s.modalInput} placeholder="e.g. 978-0262033848" value={formData.isbn} onChangeText={t => setFormData({...formData, isbn: t})} />
 
+            <Text style={[s.fieldLabel, { marginTop: 14 }]}>Book Description</Text>
+            <TextInput 
+              style={[s.modalInput, { height: 85, paddingTop: 10, textAlignVertical: 'top' }]} 
+              placeholder="Provide a summary or description of the book..." 
+              placeholderTextColor="#94A3B8"
+              multiline 
+              numberOfLines={4}
+              value={formData.description} 
+              onChangeText={t => setFormData({...formData, description: t})} 
+            />
+
             {/* QUANTITY / COPIES SECTION */}
             <View style={s.sectionDividerRow}>
               <Layers size={16} color="#0A192F" />
@@ -424,32 +472,55 @@ export const LibrarianInventoryScreen: React.FC = () => {
               <Text style={s.sectionDividerTitle}>Cover Image</Text>
             </View>
 
-            <Text style={s.fieldLabel}>Cover Image URL</Text>
-            <TextInput style={s.modalInput} placeholder="https://..." value={formData.cover_image_url} onChangeText={t => setFormData({...formData, cover_image_url: t})} />
+            {/* Image Picker Buttons */}
+            <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
+              <TouchableOpacity
+                style={[s.imagePickerBtn, { flex: 1 }]}
+                onPress={() => pickImage(false)}
+                activeOpacity={0.8}
+              >
+                <ImagePlus size={20} color="#0A192F" />
+                <Text style={s.imagePickerBtnText}>Choose from Gallery</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.imagePickerBtn, { flex: 1 }]}
+                onPress={() => pickImage(true)}
+                activeOpacity={0.8}
+              >
+                <Camera size={20} color="#0A192F" />
+                <Text style={s.imagePickerBtnText}>Take Photo</Text>
+              </TouchableOpacity>
+            </View>
 
-            <Text style={[s.fieldLabel, { marginTop: 10 }]}>Quick Cover Presets</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingVertical: 6 }}>
-              {PRESET_COVERS.map((url, idx) => (
-                <TouchableOpacity 
-                  key={idx} 
-                  onPress={() => setFormData({...formData, cover_image_url: url})} 
-                  style={[s.presetCoverBox, formData.cover_image_url === url && s.presetCoverSelected]}
-                >
-                  <Image source={{ uri: url }} style={{ width: '100%', height: '100%', borderRadius: 4 }} />
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            {/* LIVE IMAGE PREVIEW CARD */}
-            {formData.cover_image_url ? (
+            {/* IMAGE PREVIEW */}
+            {(coverImageUri || existingCoverUrl) ? (
               <View style={s.imagePreviewCard}>
-                <Image source={{ uri: formData.cover_image_url }} style={s.previewThumb} resizeMode="cover" />
+                <Image
+                  source={{ uri: coverImageUri || existingCoverUrl! }}
+                  style={s.previewThumb}
+                  resizeMode="cover"
+                />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: '700', color: '#0A192F', fontSize: 13 }}>Cover Preview</Text>
-                  <Text style={{ color: '#64748B', fontSize: 11, marginTop: 2 }} numberOfLines={1}>{formData.cover_image_url}</Text>
+                  <Text style={{ fontWeight: '700', color: '#0A192F', fontSize: 13 }}>
+                    {coverImageUri ? 'New Image Selected' : 'Current Cover'}
+                  </Text>
+                  <Text style={{ color: '#64748B', fontSize: 11, marginTop: 2 }} numberOfLines={1}>
+                    {coverImageUri ? coverImageUri.split('/').pop() : 'Tap a button above to replace'}
+                  </Text>
                 </View>
+                {coverImageUri ? (
+                  <TouchableOpacity onPress={() => setCoverImageUri(null)} style={{ padding: 6 }}>
+                    <X size={18} color="#EF4444" />
+                  </TouchableOpacity>
+                ) : null}
               </View>
-            ) : null}
+            ) : (
+              <View style={s.imagePlaceholder}>
+                <Upload size={32} color="#94A3B8" />
+                <Text style={{ color: '#94A3B8', fontSize: 13, marginTop: 8 }}>No cover image selected</Text>
+                <Text style={{ color: '#CBD5E1', fontSize: 11, marginTop: 2 }}>Tap a button above to add one</Text>
+              </View>
+            )}
 
             {/* QR CODE SCAN & SAVE SECTION */}
             <View style={s.sectionDividerRow}>
@@ -577,11 +648,13 @@ const s = StyleSheet.create({
   fieldLabel: { color: '#0F172A', fontSize: 13, fontWeight: '700', marginBottom: 6 },
   modalInput: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8, paddingHorizontal: 12, height: 46, fontSize: 14, color: '#0F172A' },
   
-  presetCoverBox: { width: 44, height: 62, borderRadius: 6, borderWidth: 2, borderColor: '#CBD5E1', overflow: 'hidden' },
-  presetCoverSelected: { borderColor: '#0A192F' },
+  imagePickerBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#F1F5F9', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 10, paddingVertical: 14, borderStyle: 'dashed' },
+  imagePickerBtnText: { color: '#0A192F', fontSize: 12, fontWeight: '700' },
+
+  imagePlaceholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8FAFC', borderWidth: 2, borderColor: '#E2E8F0', borderStyle: 'dashed', borderRadius: 12, paddingVertical: 24, marginBottom: 4 },
 
   imagePreviewCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFFFFF', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0', marginTop: 10 },
-  previewThumb: { width: 40, height: 56, borderRadius: 4 },
+  previewThumb: { width: 48, height: 68, borderRadius: 6 },
 
   scanFormBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#0A192F', height: 46, paddingHorizontal: 16, borderRadius: 8 },
   scanFormBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },

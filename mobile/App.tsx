@@ -4,6 +4,7 @@ import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/presentation/context/AuthContext';
 import { Header } from './src/presentation/components/Header';
 import { AuthContainer } from './src/presentation/screens/auth/AuthContainer';
+import { SplashScreen } from './src/presentation/screens/auth/SplashScreen';
 import { SmartCatalogScreen } from './src/presentation/screens/student/SmartCatalogScreen';
 import { StudentBooksScreen } from './src/presentation/screens/student/StudentBooksScreen';
 import { StudentProfileScreen } from './src/presentation/screens/student/StudentProfileScreen';
@@ -37,10 +38,29 @@ const TabBtn: React.FC<TabBtnProps> = ({ active, label, icon, onPress }) => (
 );
 
 const MainApp: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
   const [studentTab, setStudentTab] = useState<'CATALOG' | 'MY_BOOKS' | 'SCAN' | 'PROFILE'>('MY_BOOKS');
   const [librarianTab, setLibrarianTab] = useState<'REQUESTS' | 'INVENTORY' | 'USERS' | 'PROFILE'>('REQUESTS');
   const [adminTab, setAdminTab] = useState<'OVERVIEW' | 'POLICIES' | 'USERS' | 'BOOKS' | 'SYSTEM'>('OVERVIEW');
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
+
+  // Still checking auth state
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}>
+        <BookOpen size={48} color="#14B8A6" />
+      </View>
+    );
+  }
+
+  // Show splash onboarding before login
+  if (!user && showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
 
   if (!user) {
     return <AuthContainer />;

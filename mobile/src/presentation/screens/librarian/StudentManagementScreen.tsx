@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal, Alert, StyleSheet, Platform } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal, Alert, StyleSheet, Platform, RefreshControl } from 'react-native';
 import { Search, QrCode, UserPlus, MoreVertical, BookOpen, ShieldAlert, X, User, Edit, DollarSign, Trash2, ShieldX, ShieldCheck, Clock } from 'lucide-react-native';
 import { apiClient } from '../../../core/utils/http';
 import { API_ENDPOINTS } from '../../../core/constants/api';
@@ -52,6 +52,7 @@ const INITIAL_STUDENTS: StudentItem[] = [
 export const StudentManagementScreen: React.FC = () => {
   const [students, setStudents] = useState<StudentItem[]>(INITIAL_STUDENTS);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
   // Modals State
@@ -239,6 +240,12 @@ export const StudentManagementScreen: React.FC = () => {
     s.student_id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchStudents();
+    setRefreshing(false);
+  };
+
   return (
     <View style={s.bg}>
       {/* Top Search & Register Area */}
@@ -271,7 +278,11 @@ export const StudentManagementScreen: React.FC = () => {
       </View>
 
       {/* Student List */}
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+      <ScrollView 
+        style={{ flex: 1 }} 
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0A192F']} tintColor="#0A192F" />}
+      >
         {loading ? (
           <ActivityIndicator size="large" color="#0A192F" style={{ marginTop: 40 }} />
         ) : (

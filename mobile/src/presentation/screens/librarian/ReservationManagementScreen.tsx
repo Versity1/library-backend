@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert, Modal, StyleSheet, Platform } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert, Modal, StyleSheet, Platform, RefreshControl } from 'react-native';
 import { Search, QrCode, ArrowLeft, Bell, CheckCircle2, XCircle, X } from 'lucide-react-native';
 import { apiClient } from '../../../core/utils/http';
 import { API_ENDPOINTS } from '../../../core/constants/api';
@@ -56,6 +56,7 @@ const INITIAL_REQUESTS: BorrowRequestItem[] = [
 export const ReservationManagementScreen: React.FC = () => {
   const [requests, setRequests] = useState<BorrowRequestItem[]>(INITIAL_REQUESTS);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [filterTab, setFilterTab] = useState<'PENDING' | 'APPROVED' | 'REJECTED'>('PENDING');
   const [searchQuery, setSearchQuery] = useState('');
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -123,6 +124,12 @@ export const ReservationManagementScreen: React.FC = () => {
     (r.student_name.toLowerCase().includes(searchQuery.toLowerCase()) || r.book_title.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchRequests();
+    setRefreshing(false);
+  };
+
   return (
     <View style={s.bg}>
       {/* Top Header Bar matching Screenshot 1 */}
@@ -178,7 +185,11 @@ export const ReservationManagementScreen: React.FC = () => {
       </View>
 
       {/* Requests Card List */}
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+      <ScrollView 
+        style={{ flex: 1 }} 
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0A192F']} tintColor="#0A192F" />}
+      >
         {loading ? (
           <ActivityIndicator size="large" color="#0A192F" style={{ marginTop: 40 }} />
         ) : (
