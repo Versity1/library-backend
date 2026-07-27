@@ -115,38 +115,54 @@ The system adheres to the **Layered Clean Architecture** pattern, enforcing stri
 ### 3.1 System Architecture Diagram
 
 ```mermaid
-graph TD
-    subgraph Mobile Client (React Native + Expo)
-        A[Mobile User UI] --> B[Auth Context / Storage]
-        A --> C[Camera Scanner Module]
-        A --> D[Image Picker Engine]
-        A --> E[Smart Catalog / Inventory View]
+flowchart TD
+    subgraph MobileClient["Mobile Client (React Native & Expo)"]
+        UI["Mobile User Interface"]
+        Auth["Auth Context & AsyncStorage"]
+        Cam["Camera Scanner Module (Expo Camera)"]
+        ImgPick["Image Picker Engine (Expo ImagePicker)"]
+        Catalog["Smart Catalog & Inventory Views"]
+        
+        UI --> Auth
+        UI --> Cam
+        UI --> ImgPick
+        UI --> Catalog
     end
 
-    subgraph HTTP / REST API Gateway
-        F[JSON / Multipart Request Pipeline]
-        G[JWT Authentication & RBAC Rules]
+    subgraph APIGateway["HTTP / REST API Gateway"]
+        ReqPipe["JSON & Multipart Request Pipeline"]
+        Security["JWT Authentication & RBAC Rules"]
+        
+        ReqPipe --> Security
     end
 
-    subgraph Django Application Controllers
-        H[BookViewSet / Catalog API]
-        I[BookCopyViewSet / Scan Endpoint]
-        J[TransactionViewSet / Checkout API]
-        K[ReservationViewSet / Hold Queue]
+    subgraph Controllers["Django Application Controllers"]
+        BookAPI["BookViewSet (Catalog Engine)"]
+        ScanAPI["BookCopyViewSet (Optical QR Scan Engine)"]
+        TxAPI["TransactionViewSet (Circulation Checkout/Return)"]
+        ResAPI["ReservationViewSet (FIFO Hold Queue Engine)"]
     end
 
-    subgraph Persistence Layer
-        L[(Database ORM - SQLite)]
-        M[FileSystem Media Storage /media/book_covers/]
+    subgraph Storage["Persistence Layer"]
+        DB[("SQLite Database ORM")]
+        Media["FileSystem Media Storage (/media/book_covers/)"]
     end
 
-    E -->|HTTP GET/POST| F
-    C -->|HTTP GET /scan/| F
-    D -->|Multipart POST/PUT| F
-    F --> G
-    G --> H & I & J & K
-    H & I & J & K --> L
-    H --> M
+    Catalog -->|"HTTP GET/POST"| ReqPipe
+    Cam -->|"HTTP GET /copies/scan/"| ReqPipe
+    ImgPick -->|"Multipart POST/PUT"| ReqPipe
+
+    Security --> BookAPI
+    Security --> ScanAPI
+    Security --> TxAPI
+    Security --> ResAPI
+
+    BookAPI --> DB
+    ScanAPI --> DB
+    TxAPI --> DB
+    ResAPI --> DB
+
+    BookAPI --> Media
 ```
 
 ### 3.2 Optical QR Scanning & Asset Retrieval Sequence
