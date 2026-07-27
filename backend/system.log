@@ -787,3 +787,25 @@ INFO 2026-07-27 16:21:37,630 basehttp "GET /media/book_covers/2E4AF204-2D2A-4BC5
 INFO 2026-07-27 16:21:57,098 basehttp "GET /media/book_covers/2E4AF204-2D2A-4BC5-BC8A-58BEB7494E97.jpg HTTP/1.1" 304 0
 INFO 2026-07-27 16:24:34,126 autoreload C:\Users\HomePC\Desktop\library\backend\apps\catalog\views.py changed, reloading.
 INFO 2026-07-27 16:24:37,338 autoreload Watching for file changes with StatReloader
+INFO 2026-07-27 16:26:09,682 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 919
+INFO 2026-07-27 16:26:12,347 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3562
+INFO 2026-07-27 16:26:12,478 basehttp "GET /media/book_covers/2E4AF204-2D2A-4BC5-BC8A-58BEB7494E97.jpg HTTP/1.1" 304 0
+INFO 2026-07-27 16:26:12,511 basehttp "GET /media/book_covers/A54FAA2A-6B1C-46F7-B8D6-C0ECA0C93A32.jpg HTTP/1.1" 304 0
+WARNING 2026-07-27 16:26:12,536 log Not Found: /media/https:/images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500
+WARNING 2026-07-27 16:26:12,537 log Not Found: /media/https:/images.unsplash.com/photo-1532012197267-da84d127e765?w=500
+WARNING 2026-07-27 16:26:12,540 basehttp "GET /media/https%3A/images.unsplash.com/photo-1544716278-ca5e3f4abd8c%3Fw%3D500 HTTP/1.1" 404 3938
+WARNING 2026-07-27 16:26:12,541 basehttp "GET /media/https%3A/images.unsplash.com/photo-1532012197267-da84d127e765%3Fw%3D500 HTTP/1.1" 404 3950
+INFO 2026-07-27 16:27:48,716 basehttp "PUT /api/v1/catalog/books/14569262-a722-4c01-9ad2-314e833418a7/ HTTP/1.1" 200 587
+INFO 2026-07-27 16:28:00,336 basehttp "POST /api/v1/auth/login/ HTTP/1.1" 200 913
+INFO 2026-07-27 16:28:00,584 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3685
+INFO 2026-07-27 16:28:00,630 basehttp "GET /media/book_covers/2E4AF204-2D2A-4BC5-BC8A-58BEB7494E97.jpg HTTP/1.1" 304 0
+INFO 2026-07-27 16:28:00,762 basehttp "GET /media/book_covers/A54FAA2A-6B1C-46F7-B8D6-C0ECA0C93A32.jpg HTTP/1.1" 304 0
+WARNING 2026-07-27 16:28:00,772 log Not Found: /media/https:/images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500
+WARNING 2026-07-27 16:28:00,782 log Not Found: /media/https:/images.unsplash.com/photo-1532012197267-da84d127e765?w=500
+WARNING 2026-07-27 16:28:00,783 basehttp "GET /media/https%3A/images.unsplash.com/photo-1544716278-ca5e3f4abd8c%3Fw%3D500 HTTP/1.1" 404 3938
+WARNING 2026-07-27 16:28:00,787 basehttp "GET /media/https%3A/images.unsplash.com/photo-1532012197267-da84d127e765%3Fw%3D500 HTTP/1.1" 404 3950
+INFO 2026-07-27 16:28:09,131 basehttp "GET /api/v1/catalog/books/?search= HTTP/1.1" 200 3685
+WARNING 2026-07-27 16:28:09,261 log Not Found: /media/https:/images.unsplash.com/photo-1532012197267-da84d127e765?w=500
+WARNING 2026-07-27 16:28:09,268 log Not Found: /media/https:/images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500
+WARNING 2026-07-27 16:28:09,270 basehttp "GET /media/https%3A/images.unsplash.com/photo-1532012197267-da84d127e765%3Fw%3D500 HTTP/1.1" 404 3950
+WARNING 2026-07-27 16:28:09,271 basehttp "GET /media/https%3A/images.unsplash.com/photo-1544716278-ca5e3f4abd8c%3Fw%3D500 HTTP/1.1" 404 3938
