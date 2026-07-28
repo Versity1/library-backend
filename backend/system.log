@@ -809,3 +809,38 @@ WARNING 2026-07-27 16:28:09,261 log Not Found: /media/https:/images.unsplash.com
 WARNING 2026-07-27 16:28:09,268 log Not Found: /media/https:/images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500
 WARNING 2026-07-27 16:28:09,270 basehttp "GET /media/https%3A/images.unsplash.com/photo-1532012197267-da84d127e765%3Fw%3D500 HTTP/1.1" 404 3950
 WARNING 2026-07-27 16:28:09,271 basehttp "GET /media/https%3A/images.unsplash.com/photo-1544716278-ca5e3f4abd8c%3Fw%3D500 HTTP/1.1" 404 3938
+INFO 2026-07-28 15:03:22,905 autoreload Watching for file changes with StatReloader
+INFO 2026-07-28 15:05:17,383 autoreload Watching for file changes with StatReloader
+WARNING 2026-07-28 15:05:27,825 log Not Found: /
+WARNING 2026-07-28 15:05:27,826 basehttp "GET / HTTP/1.1" 404 3443
+WARNING 2026-07-28 15:05:27,922 log Not Found: /favicon.ico
+WARNING 2026-07-28 15:05:27,923 basehttp "GET /favicon.ico HTTP/1.1" 404 3494
+INFO 2026-07-28 15:05:48,373 basehttp "GET /api/v1/catalog HTTP/1.1" 301 0
+WARNING 2026-07-28 15:05:48,540 log Unauthorized: /api/v1/catalog/
+WARNING 2026-07-28 15:05:48,540 basehttp "GET /api/v1/catalog/ HTTP/1.1" 401 5064
+INFO 2026-07-28 15:05:48,869 basehttp "GET /static/rest_framework/css/bootstrap-tweaks.css HTTP/1.1" 200 3426
+INFO 2026-07-28 15:05:48,871 basehttp "GET /static/rest_framework/css/prettify.css HTTP/1.1" 200 817
+INFO 2026-07-28 15:05:48,874 basehttp "GET /static/rest_framework/css/default.css HTTP/1.1" 200 1152
+INFO 2026-07-28 15:05:48,890 basehttp "GET /static/rest_framework/css/bootstrap.min.css HTTP/1.1" 200 121457
+INFO 2026-07-28 15:05:48,945 basehttp "GET /static/rest_framework/js/ajax-form.js HTTP/1.1" 200 3796
+INFO 2026-07-28 15:05:48,948 basehttp "GET /static/rest_framework/js/csrf.js HTTP/1.1" 200 1793
+INFO 2026-07-28 15:05:49,012 basehttp "GET /static/rest_framework/js/default.js HTTP/1.1" 200 1268
+INFO 2026-07-28 15:05:49,013 basehttp "GET /static/rest_framework/js/prettify-min.js HTTP/1.1" 200 13632
+INFO 2026-07-28 15:05:49,019 basehttp "GET /static/rest_framework/js/load-ajax-form.js HTTP/1.1" 200 59
+INFO 2026-07-28 15:05:49,028 basehttp "GET /static/rest_framework/img/grid.png HTTP/1.1" 200 1458
+INFO 2026-07-28 15:05:49,029 basehttp "GET /static/rest_framework/js/bootstrap.min.js HTTP/1.1" 200 39680
+INFO 2026-07-28 15:05:49,038 basehttp "GET /static/rest_framework/js/jquery-3.7.1.min.js HTTP/1.1" 200 87533
+INFO 2026-07-28 15:08:35,981 autoreload C:\Users\HomePC\Desktop\library\backend\apps\authentication\serializers.py changed, reloading.
+INFO 2026-07-28 15:08:37,566 autoreload Watching for file changes with StatReloader
+INFO 2026-07-28 15:08:50,551 autoreload C:\Users\HomePC\Desktop\library\backend\apps\policies\models.py changed, reloading.
+INFO 2026-07-28 15:08:52,382 autoreload Watching for file changes with StatReloader
+INFO 2026-07-28 15:08:55,727 autoreload C:\Users\HomePC\Desktop\library\backend\apps\transactions\models.py changed, reloading.
+INFO 2026-07-28 15:08:58,537 autoreload Watching for file changes with StatReloader
+INFO 2026-07-28 15:09:04,939 autoreload C:\Users\HomePC\Desktop\library\backend\apps\transactions\serializers.py changed, reloading.
+INFO 2026-07-28 15:09:06,758 autoreload Watching for file changes with StatReloader
+INFO 2026-07-28 15:09:15,227 autoreload C:\Users\HomePC\Desktop\library\backend\apps\transactions\views.py changed, reloading.
+INFO 2026-07-28 15:09:16,815 autoreload Watching for file changes with StatReloader
+INFO 2026-07-28 15:09:21,487 autoreload C:\Users\HomePC\Desktop\library\backend\apps\catalog\views.py changed, reloading.
+INFO 2026-07-28 15:09:23,522 autoreload Watching for file changes with StatReloader
+INFO 2026-07-28 15:09:26,913 autoreload C:\Users\HomePC\Desktop\library\backend\apps\analytics\views.py changed, reloading.
+INFO 2026-07-28 15:09:28,668 autoreload Watching for file changes with StatReloader

@@ -41,10 +41,20 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
 
     def validate(self, attrs):
+        email_or_id = attrs.get('email', '').strip()
+        if email_or_id:
+            from .models import User
+            user_obj = User.objects.filter(email__iexact=email_or_id).first() or \
+                       User.objects.filter(student_staff_id__iexact=email_or_id).first() or \
+                       User.objects.filter(username__iexact=email_or_id).first()
+            if user_obj:
+                attrs['email'] = user_obj.email
+
         data = super().validate(attrs)
         user_serializer = UserSerializer(self.user)
         data['user'] = user_serializer.data
         return data
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})

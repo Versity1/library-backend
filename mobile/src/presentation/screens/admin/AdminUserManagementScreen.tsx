@@ -398,6 +398,7 @@ const s = StyleSheet.create({
   modalTitle: { fontSize: 18, fontWeight: '800', color: '#0A192F', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
   modalSub: { fontSize: 12, color: '#64748B', marginTop: 2 },
   fieldLabel: { fontSize: 12, fontWeight: '700', color: '#0F172A', marginBottom: 6 },
+  modalInput: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8, paddingHorizontal: 12, height: 46, fontSize: 14, color: '#0F172A' },
   saveBtn: { backgroundColor: '#0A192F', height: 48, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
   saveBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '800', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
 });

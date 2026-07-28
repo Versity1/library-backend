@@ -131,15 +131,15 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
         student_staff_id: user?.student_staff_id || 'STU-9402',
         qr_code_id: qrId,
       });
-      Alert.alert('Borrow Successful!', `You have checked out "${book.title}". Please collect it from ${book.location_shelf}.`);
-    } catch (err: any) {
-      Alert.alert('Borrow Successful!', `You have checked out "${book.title}". Please collect it from ${book.location_shelf}.`);
-    } finally {
       setBorrowedBookIds(prev => [...prev, book.id]);
       setBooks(prev => prev.map(b => b.id === book.id ? { ...b, available_copies: Math.max(0, b.available_copies - 1) } : b));
       if (selectedBook && selectedBook.id === book.id) {
         setSelectedBook(prev => prev ? { ...prev, available_copies: Math.max(0, prev.available_copies - 1) } : null);
       }
+      Alert.alert('Borrow Successful!', `You have checked out "${book.title}". Please collect it from ${book.location_shelf}.`);
+    } catch (err: any) {
+      Alert.alert('Borrow Error', err.response?.data?.error || err.response?.data?.detail || 'Failed to checkout book.');
+    } finally {
       setActionLoading(null);
     }
   };
@@ -151,15 +151,15 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
       await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, {
         qr_code_id: qrId,
       });
-      Alert.alert('Return Successful!', `"${book.title}" has been returned to the library.`);
-    } catch (err: any) {
-      Alert.alert('Return Successful!', `"${book.title}" has been returned to the library.`);
-    } finally {
       setBorrowedBookIds(prev => prev.filter(id => id !== book.id));
       setBooks(prev => prev.map(b => b.id === book.id ? { ...b, available_copies: b.available_copies + 1 } : b));
       if (selectedBook && selectedBook.id === book.id) {
         setSelectedBook(prev => prev ? { ...prev, available_copies: prev.available_copies + 1 } : null);
       }
+      Alert.alert('Return Successful!', `"${book.title}" has been returned to the library.`);
+    } catch (err: any) {
+      Alert.alert('Return Error', err.response?.data?.error || err.response?.data?.detail || 'Failed to process return.');
+    } finally {
       setActionLoading(null);
     }
   };
@@ -170,7 +170,7 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
       const res = await apiClient.post(API_ENDPOINTS.RESERVATIONS.RESERVE, { book_id: book.id });
       Alert.alert('Reservation Confirmed!', `Hold placed for "${book.title}". Queue Position: #${res.data?.queue_position || 1}`);
     } catch (err: any) {
-      Alert.alert('Reservation Confirmed!', `Hold placed for "${book.title}". Queue Position: #1`);
+      Alert.alert('Reservation Error', err.response?.data?.error || err.response?.data?.detail || 'Failed to place hold on title.');
     } finally {
       setActionLoading(null);
     }

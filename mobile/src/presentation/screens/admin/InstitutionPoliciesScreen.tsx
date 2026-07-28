@@ -33,14 +33,14 @@ export const InstitutionPoliciesScreen: React.FC = () => {
       } else {
         // Fallback policy templates
         setPolicies([
-          { id: 'pol_1', role: 'STUDENT', max_borrow_limit: 3, default_loan_days: 14, fine_rate_per_day: 0.50, grace_period_days: 2, reservation_hold_hours: 48 },
-          { id: 'pol_2', role: 'FACULTY', max_borrow_limit: 10, default_loan_days: 30, fine_rate_per_day: 0.25, grace_period_days: 5, reservation_hold_hours: 72 },
+          { id: 1, role: 'STUDENT', max_borrow_limit: 3, default_loan_days: 14, fine_rate_per_day: 0.50, grace_period_days: 2, reservation_hold_hours: 48 },
+          { id: 2, role: 'FACULTY', max_borrow_limit: 10, default_loan_days: 30, fine_rate_per_day: 0.25, grace_period_days: 5, reservation_hold_hours: 72 },
         ] as any);
       }
     } catch (e) {
       setPolicies([
-        { id: 'pol_1', role: 'STUDENT', max_borrow_limit: 3, default_loan_days: 14, fine_rate_per_day: 0.50, grace_period_days: 2, reservation_hold_hours: 48 },
-        { id: 'pol_2', role: 'FACULTY', max_borrow_limit: 10, default_loan_days: 30, fine_rate_per_day: 0.25, grace_period_days: 5, reservation_hold_hours: 72 },
+        { id: 1, role: 'STUDENT', max_borrow_limit: 3, default_loan_days: 14, fine_rate_per_day: 0.50, grace_period_days: 2, reservation_hold_hours: 48 },
+        { id: 2, role: 'FACULTY', max_borrow_limit: 10, default_loan_days: 30, fine_rate_per_day: 0.25, grace_period_days: 5, reservation_hold_hours: 72 },
       ] as any);
     } finally {
       setLoading(false);
@@ -74,8 +74,7 @@ export const InstitutionPoliciesScreen: React.FC = () => {
     } catch (e: any) {
       const data = e.response?.data;
       const msg = typeof data === 'object' && data ? Object.values(data)[0] : 'Failed to save policy.';
-      Alert.alert('Saved', `Policy for ${policy.role} updated.`);
-      cancelEdit();
+      Alert.alert('Error', Array.isArray(msg) ? msg[0] : String(msg));
     } finally {
       setSaving(false);
     }

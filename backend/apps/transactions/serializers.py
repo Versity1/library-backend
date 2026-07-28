@@ -17,7 +17,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'user_name', 'student_staff_id', 'book_copy',
             'book_title', 'author', 'isbn', 'cover_image_url', 'qr_code_id',
-            'issued_by', 'issue_date', 'due_date', 'return_date', 'status', 'renewed_count'
+            'issued_by', 'issue_date', 'due_date', 'return_date', 'status', 'renewed_count',
+            'request_status', 'request_message'
         ]
 
 class CheckoutRequestSerializer(serializers.Serializer):

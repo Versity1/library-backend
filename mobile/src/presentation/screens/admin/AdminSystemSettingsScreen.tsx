@@ -35,8 +35,13 @@ export const AdminSystemSettingsScreen: React.FC = () => {
   const handleBackup = () => {
     Alert.alert('Database Backup', 'This will export a full snapshot of the SQLite system database. Continue?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Download Backup', onPress: () => {
-        Linking.openURL(`${API_BASE_URL}${API_ENDPOINTS.ADMIN.SYSTEM_BACKUP}`);
+      { text: 'Download Backup', onPress: async () => {
+        try {
+          await apiClient.get(API_ENDPOINTS.ADMIN.SYSTEM_BACKUP, { responseType: 'blob' });
+          Alert.alert('Success', 'Database backup snapshot exported successfully.');
+        } catch (e: any) {
+          Alert.alert('Error', e.response?.data?.error || 'Failed to export database backup snapshot.');
+        }
       }}
     ]);
   };

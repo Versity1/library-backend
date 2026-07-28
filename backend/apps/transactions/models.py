@@ -8,6 +8,13 @@ class TransactionStatus(models.TextChoices):
     RETURNED = 'RETURNED', 'Returned'
     OVERDUE = 'OVERDUE', 'Overdue'
 
+class RequestStatus(models.TextChoices):
+    NONE = 'NONE', 'None'
+    PENDING_EXTENSION = 'PENDING_EXTENSION', 'Pending Extension'
+    PENDING_RETURN = 'PENDING_RETURN', 'Pending Return'
+    APPROVED = 'APPROVED', 'Approved'
+    REJECTED = 'REJECTED', 'Rejected'
+
 class Transaction(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='loans')
@@ -18,6 +25,8 @@ class Transaction(models.Model):
     return_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=TransactionStatus.choices, default=TransactionStatus.BORROWED, db_index=True)
     renewed_count = models.IntegerField(default=0)
+    request_status = models.CharField(max_length=30, choices=RequestStatus.choices, default=RequestStatus.NONE)
+    request_message = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         ordering = ['-issue_date']

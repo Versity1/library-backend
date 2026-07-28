@@ -32,7 +32,7 @@ export const OperationsDashboardScreen: React.FC<DashboardProps> = ({ onNavigate
     finally { setLoading(false); }
   };
 
-  const handleApprove = async (id: number) => {
+  const handleApprove = async (id: string | number) => {
     try {
       await apiClient.post(API_ENDPOINTS.RESERVATIONS.FULFILL, { reservation_id: id });
       Alert.alert('Success', 'Reservation fulfilled.');
@@ -151,7 +151,7 @@ export const OperationsDashboardScreen: React.FC<DashboardProps> = ({ onNavigate
                   <Text style={s.prAuthor}>Author Unknown</Text>
                   <View style={s.prMetaRow}>
                     <View style={s.availBadge}><Text style={s.availText}>AVAILABLE</Text></View>
-                    <Text style={s.prStudentId}>Student ID: {res.user_id}</Text>
+                    <Text style={s.prStudentId}>Student ID: {res.student_staff_id || res.user}</Text>
                   </View>
                 </View>
                 <TouchableOpacity style={s.approveBtn} onPress={() => handleApprove(res.id)}>

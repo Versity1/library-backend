@@ -40,7 +40,7 @@ export const API_ENDPOINTS = {
   },
   RESERVATIONS: {
     RESERVE: '/reservations/reserve/',
-    LIST: '/reservations/list/',
+    LIST: '/reservations/queue/',
     MY_RESERVATIONS: '/reservations/my-reservations/',
     QUEUE: '/reservations/queue/',
     FULFILL: '/reservations/fulfill/',
@@ -53,11 +53,11 @@ export const API_ENDPOINTS = {
   },
   POLICIES: {
     LIST: '/policies/',
-    DETAIL: (id: number) => `/policies/${id}/`,
+    DETAIL: (id: number | string) => `/policies/${id}/`,
   },
   ANALYTICS: {
     OVERVIEW: '/analytics/overview/',
-    POLICIES: '/analytics/policies/',
+    POLICIES: '/policies/',
   },
   ADMIN: {
     USERS: '/auth/admin/users/',

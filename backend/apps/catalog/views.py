@@ -62,9 +62,11 @@ class BookViewSet(viewsets.ModelViewSet):
         
         book = serializer.save(**save_kwargs)
         
-        qr_code_id = self.request.data.get('qr_code_id') or f"QR-{book.isbn}"
-        if not BookCopy.objects.filter(qr_code_id=qr_code_id).exists():
-            BookCopy.objects.create(book=book, qr_code_id=qr_code_id, status='AVAILABLE')
+        base_qr = self.request.data.get('qr_code_id') or f"QR-{book.isbn}"
+        for i in range(1, total_copies + 1):
+            qr_id = base_qr if (i == 1 and not BookCopy.objects.filter(qr_code_id=base_qr).exists()) else f"{base_qr}-{i}"
+            if not BookCopy.objects.filter(qr_code_id=qr_id).exists():
+                BookCopy.objects.create(book=book, qr_code_id=qr_id, status='AVAILABLE')
 
     def perform_update(self, serializer):
         cover_image = self.request.FILES.get('cover_image_url')

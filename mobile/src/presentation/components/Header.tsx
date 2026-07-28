@@ -185,7 +185,6 @@ const s = StyleSheet.create({
   notifBox: { backgroundColor: '#FFF', width: '100%', maxWidth: 400, borderRadius: 24, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 },
   notifHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   notifTitle: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
-  logoutBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FEF2F2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
   logoutText: { color: '#EF4444', fontWeight: '700', fontSize: 12 },
   emptyNotifBox: { paddingVertical: 40, alignItems: 'center', justifyContent: 'center' },
   emptyNotifText: { color: '#64748B', fontSize: 15, fontWeight: '500' },

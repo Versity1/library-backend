@@ -78,23 +78,18 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
           onPress: async () => {
             setActionLoading('extension');
             try {
-              await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RENEW, { transaction_id: loan.id });
-            } catch (err) {
-              console.log('Extension request sent via fallback state');
-            } finally {
-              const updatedStatus: Transaction = {
-                ...loan,
-                request_status: 'PENDING_EXTENSION',
-                request_message: 'Extension request sent. Awaiting Admin Approval.',
-              };
+              const res = await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RENEW, { transaction_id: loan.id });
+              const updatedStatus: Transaction = res.data;
               setLoans(prev => prev.map(l => l.id === loan.id ? updatedStatus : l));
               setSelectedLoan(updatedStatus);
-              setActionLoading(null);
-
               showPushNotification(
                 '🔔 Request Pending Admin Approval',
                 `Your extension request for "${loan.book_title}" has been submitted to the Admin.`
               );
+            } catch (err: any) {
+              Alert.alert('Extension Error', err.response?.data?.error || err.response?.data?.detail || 'Failed to submit extension request.');
+            } finally {
+              setActionLoading(null);
             }
           }
         }
@@ -113,23 +108,18 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
           onPress: async () => {
             setActionLoading('return');
             try {
-              await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, { qr_code_id: loan.qr_code_id });
-            } catch (err) {
-              console.log('Return request sent via fallback state');
-            } finally {
-              const updatedStatus: Transaction = {
-                ...loan,
-                request_status: 'PENDING_RETURN',
-                request_message: 'Return request submitted. Hand in physical book for Admin Approval.',
-              };
+              const res = await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, { qr_code_id: loan.qr_code_id });
+              const updatedStatus: Transaction = res.data;
               setLoans(prev => prev.map(l => l.id === loan.id ? updatedStatus : l));
               setSelectedLoan(updatedStatus);
-              setActionLoading(null);
-
               showPushNotification(
                 '🔔 Return Request Submitted',
                 `Your return request for "${loan.book_title}" is pending Admin verification.`
               );
+            } catch (err: any) {
+              Alert.alert('Return Error', err.response?.data?.error || err.response?.data?.detail || 'Failed to submit return request.');
+            } finally {
+              setActionLoading(null);
             }
           }
         }

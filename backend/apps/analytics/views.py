@@ -75,8 +75,9 @@ class AdminSystemLogsView(APIView):
         
         with open(log_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
-            # Return last 100 lines
-            return Response({'logs': lines[-100:]}, status=status.HTTP_200_OK)
+            # Return last 100 lines stripped of trailing newlines
+            clean_lines = [line.strip() for line in lines[-100:] if line.strip()]
+            return Response({'logs': clean_lines}, status=status.HTTP_200_OK)
 
 class AdminBackupView(APIView):
     permission_classes = [IsAdmin]

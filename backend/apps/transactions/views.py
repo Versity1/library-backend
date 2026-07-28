@@ -179,21 +179,24 @@ class RenewView(APIView):
         transaction_id = serializer.validated_data['transaction_id']
 
         try:
-            loan = Transaction.objects.get(id=transaction_id, user=request.user)
+            if request.user.role in ['LIBRARIAN', 'ADMIN']:
+                loan = Transaction.objects.get(id=transaction_id)
+            else:
+                loan = Transaction.objects.get(id=transaction_id, user=request.user)
         except Transaction.DoesNotExist:
             return Response({'error': 'Active loan not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         if loan.status != TransactionStatus.BORROWED:
             return Response({'error': 'Only currently borrowed items can be renewed.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check max renewals (assume max 2 renewals)
+        # Check max renewals from policy
         policy = InstitutionPolicy.objects.filter(role=loan.user.role).first()
-        max_renewals = policy.max_borrow_limit if policy else 2  # default 2 for now, ideally we have a specific field
-        if loan.renewed_count >= 2:
+        max_renewals = getattr(policy, 'max_renewals_allowed', 2) if policy else 2
+        if loan.renewed_count >= max_renewals:
             return Response({'error': 'Maximum number of renewals reached for this item.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check for outstanding fines
-        unpaid_fines_exist = Fine.objects.filter(user=request.user, status=FineStatus.UNPAID).exists()
+        unpaid_fines_exist = Fine.objects.filter(user=loan.user, status=FineStatus.UNPAID).exists()
         if unpaid_fines_exist:
             return Response({'error': 'Cannot renew with outstanding unpaid fines.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -201,6 +204,8 @@ class RenewView(APIView):
         loan_days = policy.default_loan_days if policy else 14
         loan.due_date = loan.due_date + timedelta(days=loan_days)
         loan.renewed_count += 1
+        from .models import RequestStatus
+        loan.request_status = RequestStatus.APPROVED if request.user.role in ['LIBRARIAN', 'ADMIN'] else RequestStatus.PENDING_EXTENSION
         loan.save()
 
         return Response(TransactionSerializer(loan).data, status=status.HTTP_200_OK)
@@ -266,13 +271,19 @@ class GateAccessScanView(APIView):
     permission_classes = [IsLibrarian]
 
     def post(self, request):
+        import uuid
         student_id_code = request.data.get('student_staff_id') or request.data.get('qr_code_id')
         if not student_id_code:
             return Response({'error': 'student_staff_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = User.objects.filter(
-            Q(student_staff_id=student_id_code) | Q(username=student_id_code) | Q(email=student_id_code)
-        ).first()
+        user_query = Q(student_staff_id=student_id_code) | Q(username=student_id_code) | Q(email=student_id_code)
+        try:
+            user_uuid = uuid.UUID(student_id_code)
+            user_query |= Q(id=user_uuid)
+        except (ValueError, TypeError):
+            pass
+
+        user = User.objects.filter(user_query).first()
 
         if not user:
             return Response({'error': f'Student record not found for ID: {student_id_code}'}, status=status.HTTP_404_NOT_FOUND)
