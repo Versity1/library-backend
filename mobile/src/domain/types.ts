@@ -55,9 +55,12 @@ export interface Transaction {
   issued_by?: string;
   issue_date: string;
   due_date: string;
+  due_days_left?: number;
   return_date?: string;
   status: 'BORROWED' | 'RETURNED' | 'OVERDUE';
   renewed_count: number;
+  request_status?: 'NONE' | 'PENDING_EXTENSION' | 'PENDING_RETURN' | 'APPROVED' | 'REJECTED';
+  request_message?: string;
   fine_assessed?: {
     fine_id: string;
     amount: number;

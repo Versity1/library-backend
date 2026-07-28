@@ -1,25 +1,17 @@
 import { Platform } from 'react-native';
 
 /**
- * ============================================================
- *  IMPORTANT: Update YOUR_LAN_IP to your computer's local IP.
- *  Find it with: ipconfig (Windows) or ifconfig (Mac/Linux)
- * ============================================================
+ * Production Server Configuration
  */
-const YOUR_LAN_IP = '172.20.10.3';
+const PRODUCTION_SERVER = 'https://learnpro.com.ng';
 
-// Physical devices MUST use the LAN IP. Emulators can use special aliases.
 const getApiHost = (): string => {
-  if (__DEV__) {
-    // Always use LAN IP for Expo Go on physical devices
-    return `http://${YOUR_LAN_IP}:8000`;
-  }
-  return 'https://your-production-url.com';
+  return PRODUCTION_SERVER;
 };
 
 export const API_BASE_URL = `${getApiHost()}/api/v1`;
 
-console.log('[API] Base URL:', API_BASE_URL);
+console.log('[API] Connected to Production Server:', API_BASE_URL);
 
 export const API_ENDPOINTS = {
   AUTH: {

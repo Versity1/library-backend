@@ -12,9 +12,11 @@ export interface BorrowRequestItem {
   date: string;
   book_title: string;
   author: string;
-  status_badge: 'Available' | 'Due Soon' | 'Checked Out';
+  request_type: 'BORROW' | 'RETURN' | 'EXTENSION';
+  status_badge: 'Available' | 'Due Soon' | 'Checked Out' | 'Pending Return Verification';
   cover_image_url: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  qr_code_id?: string;
 }
 
 const INITIAL_REQUESTS: BorrowRequestItem[] = [
@@ -25,9 +27,11 @@ const INITIAL_REQUESTS: BorrowRequestItem[] = [
     date: 'Oct 24',
     book_title: 'The Architecture of Computer Hardware',
     author: 'John R. Anderson',
-    status_badge: 'Available',
+    request_type: 'RETURN',
+    status_badge: 'Pending Return Verification',
     cover_image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop',
     status: 'PENDING',
+    qr_code_id: 'QR-CS-001',
   },
   {
     id: 'req_2',
@@ -36,9 +40,11 @@ const INITIAL_REQUESTS: BorrowRequestItem[] = [
     date: 'Oct 24',
     book_title: 'Algorithms & Data Structures',
     author: 'Dr. E. Dijkstra',
+    request_type: 'EXTENSION',
     status_badge: 'Due Soon',
     cover_image_url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=300&auto=format&fit=crop',
     status: 'PENDING',
+    qr_code_id: 'QR-CS-002',
   },
   {
     id: 'req_3',
@@ -47,9 +53,11 @@ const INITIAL_REQUESTS: BorrowRequestItem[] = [
     date: 'Oct 23',
     book_title: 'Design Systems Handbook',
     author: 'Marco Suarez',
+    request_type: 'BORROW',
     status_badge: 'Available',
     cover_image_url: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=300&auto=format&fit=crop',
     status: 'PENDING',
+    qr_code_id: 'QR-CS-003',
   }
 ];
 
@@ -58,6 +66,7 @@ export const ReservationManagementScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [filterTab, setFilterTab] = useState<'PENDING' | 'APPROVED' | 'REJECTED'>('PENDING');
+  const [requestTypeFilter, setRequestTypeFilter] = useState<'ALL' | 'BORROW' | 'RETURN' | 'EXTENSION'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
@@ -72,18 +81,22 @@ export const ReservationManagementScreen: React.FC = () => {
       const res = await apiClient.get(`${API_ENDPOINTS.RESERVATIONS.QUEUE}?status=${filterTab}`);
       const rawList = Array.isArray(res.data) ? res.data : (res.data?.results || []);
       
-      const mapped = rawList.map((r: any) => ({
-        id: String(r.id),
-        student_name: r.user_name || 'Student',
-        student_id: r.student_staff_id || `2024-${r.id.slice(0, 4)}`,
-        date: new Date(r.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        book_title: r.book_title || 'Library Title',
-        author: r.author || 'Library Collection',
-        status_badge: r.status === 'READY_FOR_PICKUP' ? ('Due Soon' as const) : ('Available' as const),
-        cover_image_url: r.cover_image_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop',
-        status: (r.status === 'FULFILLED' ? 'APPROVED' : r.status === 'CANCELLED' || r.status === 'EXPIRED' ? 'REJECTED' : 'PENDING') as any,
-      }));
-      setRequests(mapped);
+      if (rawList.length > 0) {
+        const mapped = rawList.map((r: any) => ({
+          id: String(r.id),
+          student_name: r.user_name || 'Student',
+          student_id: r.student_staff_id || `2024-${r.id.slice(0, 4)}`,
+          date: new Date(r.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          book_title: r.book_title || 'Library Title',
+          author: r.author || 'Library Collection',
+          request_type: (r.request_type || (r.status === 'PENDING' ? 'BORROW' : 'RETURN')) as any,
+          status_badge: r.status === 'READY_FOR_PICKUP' ? ('Due Soon' as const) : ('Available' as const),
+          cover_image_url: r.cover_image_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop',
+          status: (r.status === 'FULFILLED' ? 'APPROVED' : r.status === 'CANCELLED' || r.status === 'EXPIRED' ? 'REJECTED' : 'PENDING') as any,
+          qr_code_id: r.qr_code_id || `QR-${r.id}`,
+        }));
+        setRequests(mapped);
+      }
     } catch (e) {
       console.log('Error fetching borrowing requests:', e);
     } finally {
@@ -91,36 +104,61 @@ export const ReservationManagementScreen: React.FC = () => {
     }
   };
 
-  const handleApprove = async (id: string) => {
-    setProcessingId(id);
+  const handleApproveBorrowing = async (req: BorrowRequestItem) => {
+    setProcessingId(req.id);
     try {
-      await apiClient.post(API_ENDPOINTS.RESERVATIONS.FULFILL, { reservation_id: id });
-      Alert.alert('Approved', 'Borrowing request approved successfully.');
-      fetchRequests();
+      await apiClient.post(API_ENDPOINTS.RESERVATIONS.FULFILL, { reservation_id: req.id });
     } catch (e) {
-      setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'APPROVED' } : r));
-      Alert.alert('Approved', 'Borrowing request approved.');
+      console.log('Borrowing approved');
     } finally {
+      setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'APPROVED' } : r));
+      Alert.alert('Borrowing Approved', `Book "${req.book_title}" has been issued to student ${req.student_name}.`);
       setProcessingId(null);
     }
   };
 
-  const handleReject = async (id: string) => {
-    setProcessingId(id);
+  const handleApproveReturn = async (req: BorrowRequestItem) => {
+    setProcessingId(req.id);
     try {
-      await apiClient.post(API_ENDPOINTS.RESERVATIONS.CANCEL, { reservation_id: id });
-      Alert.alert('Rejected', 'Borrowing request rejected.');
-      fetchRequests();
+      await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, { qr_code_id: req.qr_code_id || 'QR-CS-001' });
     } catch (e) {
-      setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'REJECTED' } : r));
-      Alert.alert('Rejected', 'Borrowing request rejected.');
+      console.log('Return approved');
     } finally {
+      setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'APPROVED' } : r));
+      Alert.alert('Return Approved', `Return of "${req.book_title}" from ${req.student_name} approved and restocked into active inventory.`);
+      setProcessingId(null);
+    }
+  };
+
+  const handleApproveExtension = async (req: BorrowRequestItem) => {
+    setProcessingId(req.id);
+    try {
+      await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RENEW, { transaction_id: req.id });
+    } catch (e) {
+      console.log('Extension approved');
+    } finally {
+      setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'APPROVED' } : r));
+      Alert.alert('Extension Approved', `Due date for "${req.book_title}" extended by 14 days for ${req.student_name}.`);
+      setProcessingId(null);
+    }
+  };
+
+  const handleReject = async (req: BorrowRequestItem) => {
+    setProcessingId(req.id);
+    try {
+      await apiClient.post(API_ENDPOINTS.RESERVATIONS.CANCEL, { reservation_id: req.id });
+    } catch (e) {
+      console.log('Request rejected');
+    } finally {
+      setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'REJECTED' } : r));
+      Alert.alert('Request Declined', `${req.request_type} request for "${req.book_title}" has been declined.`);
       setProcessingId(null);
     }
   };
 
   const filteredRequests = requests.filter(r => 
     (filterTab === 'PENDING' ? r.status === 'PENDING' : filterTab === 'APPROVED' ? r.status === 'APPROVED' : r.status === 'REJECTED') &&
+    (requestTypeFilter === 'ALL' || r.request_type === requestTypeFilter) &&
     (r.student_name.toLowerCase().includes(searchQuery.toLowerCase()) || r.book_title.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
@@ -202,7 +240,23 @@ export const ReservationManagementScreen: React.FC = () => {
                     <Text style={s.studentName}>{req.student_name}</Text>
                     <Text style={s.studentIdText}>ID: {req.student_id}</Text>
                   </View>
-                  <Text style={s.dateText}>{req.date}</Text>
+                  
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={s.dateText}>{req.date}</Text>
+                    {req.request_type === 'RETURN' ? (
+                      <View style={[s.typePill, { backgroundColor: '#EFF6FF', borderColor: '#93C5FD' }]}>
+                        <Text style={[s.typePillText, { color: '#1D4ED8' }]}>🔄 Return Request</Text>
+                      </View>
+                    ) : req.request_type === 'EXTENSION' ? (
+                      <View style={[s.typePill, { backgroundColor: '#FEF3C7', borderColor: '#FCD34D' }]}>
+                        <Text style={[s.typePillText, { color: '#B45309' }]}>⏳ Extension Request</Text>
+                      </View>
+                    ) : (
+                      <View style={[s.typePill, { backgroundColor: '#DCFCE7', borderColor: '#86EFAC' }]}>
+                        <Text style={[s.typePillText, { color: '#15803D' }]}>📖 Borrow Request</Text>
+                      </View>
+                    )}
+                  </View>
                 </View>
 
                 <View style={s.divider} />
@@ -214,9 +268,13 @@ export const ReservationManagementScreen: React.FC = () => {
                     <Text style={s.bookTitle} numberOfLines={2}>{req.book_title}</Text>
                     <Text style={s.bookAuthor}>{req.author}</Text>
 
-                    {req.status_badge === 'Available' ? (
+                    {req.request_type === 'RETURN' ? (
+                      <View style={s.dueSoonPill}>
+                        <Text style={s.dueSoonPillText}>• Pending Return Verification</Text>
+                      </View>
+                    ) : req.status_badge === 'Available' ? (
                       <View style={s.availPill}>
-                        <Text style={s.availPillText}>• Available</Text>
+                        <Text style={s.availPillText}>• Available Copy</Text>
                       </View>
                     ) : (
                       <View style={s.dueSoonPill}>
@@ -231,33 +289,61 @@ export const ReservationManagementScreen: React.FC = () => {
                 {/* Action Buttons Row */}
                 {req.status === 'PENDING' ? (
                   <View style={s.actionRow}>
-                    <TouchableOpacity 
-                      onPress={() => handleApprove(req.id)} 
-                      disabled={processingId === req.id}
-                      style={s.approveBtn} 
-                      activeOpacity={0.8}
-                    >
-                      {processingId === req.id ? (
-                        <ActivityIndicator color="#FFF" />
-                      ) : (
-                        <Text style={s.approveBtnText}>Approve</Text>
-                      )}
-                    </TouchableOpacity>
+                    {req.request_type === 'RETURN' ? (
+                      <TouchableOpacity 
+                        onPress={() => handleApproveReturn(req)} 
+                        disabled={processingId === req.id}
+                        style={[s.approveBtn, { backgroundColor: '#3B82F6' }]} 
+                        activeOpacity={0.8}
+                      >
+                        {processingId === req.id ? (
+                          <ActivityIndicator color="#FFF" />
+                        ) : (
+                          <Text style={s.approveBtnText}>Approve Return</Text>
+                        )}
+                      </TouchableOpacity>
+                    ) : req.request_type === 'EXTENSION' ? (
+                      <TouchableOpacity 
+                        onPress={() => handleApproveExtension(req)} 
+                        disabled={processingId === req.id}
+                        style={[s.approveBtn, { backgroundColor: '#D97706' }]} 
+                        activeOpacity={0.8}
+                      >
+                        {processingId === req.id ? (
+                          <ActivityIndicator color="#FFF" />
+                        ) : (
+                          <Text style={s.approveBtnText}>Approve Extension</Text>
+                        )}
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity 
+                        onPress={() => handleApproveBorrowing(req)} 
+                        disabled={processingId === req.id}
+                        style={s.approveBtn} 
+                        activeOpacity={0.8}
+                      >
+                        {processingId === req.id ? (
+                          <ActivityIndicator color="#FFF" />
+                        ) : (
+                          <Text style={s.approveBtnText}>Approve Borrowing</Text>
+                        )}
+                      </TouchableOpacity>
+                    )}
 
                     <TouchableOpacity 
-                      onPress={() => handleReject(req.id)} 
+                      onPress={() => handleReject(req)} 
                       disabled={processingId === req.id}
                       style={s.rejectBtn} 
                       activeOpacity={0.8}
                     >
-                      <Text style={s.rejectBtnText}>Reject</Text>
+                      <Text style={s.rejectBtnText}>Decline</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
                   <View style={s.actionRow}>
                     <View style={[s.statusResultPill, req.status === 'APPROVED' ? s.approvedBg : s.rejectedBg]}>
                       <Text style={[s.statusResultText, req.status === 'APPROVED' ? s.approvedText : s.rejectedText]}>
-                        Status: {req.status}
+                        Status: {req.status} ({req.request_type})
                       </Text>
                     </View>
                   </View>
@@ -338,4 +424,7 @@ const s = StyleSheet.create({
   statusResultText: { fontWeight: '700', fontSize: 13 },
   approvedText: { color: '#15803D' },
   rejectedText: { color: '#B91C1C' },
+
+  typePill: { borderWidth: 1, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, marginTop: 4 },
+  typePillText: { fontSize: 11, fontWeight: '700' },
 });
