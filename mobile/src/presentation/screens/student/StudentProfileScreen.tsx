@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Modal, Tex
 import { LogOut, User, Mail, Briefcase, ChevronRight, Bell, Shield, BookOpen, Clock, X, Lock, Phone, Star, CheckCircle2, AlertCircle, Smartphone, Heart, Sparkles } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { apiClient } from '../../../core/utils/http';
+import { API_ENDPOINTS } from '../../../core/constants/api';
 
 export const StudentProfileScreen: React.FC = () => {
   const { user, logout } = useAuth();
@@ -10,16 +11,89 @@ export const StudentProfileScreen: React.FC = () => {
   // Active Sub-Modal States
   const [activeModal, setActiveModal] = useState<'PERSONAL_INFO' | 'NOTIFICATIONS' | 'PRIVACY_SECURITY' | 'READING_HISTORY' | null>(null);
 
+  // Profile Stats Data
+  const [readingHistory, setReadingHistory] = useState<any[]>([]);
+  const [activeLoansCount, setActiveLoansCount] = useState(0);
+  const [totalFines, setTotalFines] = useState(0);
+
   // Personal Info Form State
   const [personalForm, setPersonalForm] = useState({
-    firstName: user?.first_name || 'Alex',
-    lastName: user?.last_name || 'Johnson',
-    email: user?.email || 'alex.johnson@university.edu',
-    studentId: user?.student_staff_id || '2024-042',
-    department: user?.department || 'Computer Science & Engineering',
-    phone: '+1 (555) 234-5678',
+    firstName: user?.first_name || '',
+    lastName: user?.last_name || '',
+    email: user?.email || '',
+    studentId: user?.student_staff_id || '',
+    department: user?.department || '',
+    phone: '',
   });
   const [savingPersonal, setSavingPersonal] = useState(false);
+
+  React.useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const [loansRes, finesRes, reservationsRes, meRes] = await Promise.all([
+          apiClient.get(API_ENDPOINTS.TRANSACTIONS.MY_LOANS),
+          apiClient.get(API_ENDPOINTS.FINES.MY_FINES),
+          apiClient.get(API_ENDPOINTS.RESERVATIONS.MY_RESERVATIONS),
+          apiClient.get('/auth/me/')
+        ]);
+
+        const loans = Array.isArray(loansRes.data) ? loansRes.data : (loansRes.data.results || []);
+        const fines = Array.isArray(finesRes.data) ? finesRes.data : (finesRes.data.results || []);
+        const reservations = Array.isArray(reservationsRes.data) ? reservationsRes.data : (reservationsRes.data.results || []);
+        const me = meRes.data;
+
+        setPersonalForm({
+          firstName: me.first_name || '',
+          lastName: me.last_name || '',
+          email: me.email || '',
+          studentId: me.student_staff_id || '',
+          department: me.department || '',
+          phone: me.phone || '',
+        });
+
+        // Active Loans
+        const active = loans.filter((l: any) => l.status === 'BORROWED' || l.status === 'OVERDUE');
+        setActiveLoansCount(active.length);
+
+        // Books Read (Loans + Reservations)
+        const mappedLoans = loans.map((l: any) => ({
+          id: l.id,
+          title: l.book_title,
+          author: l.author,
+          cover_url: l.cover_image_url || 'https://via.placeholder.com/150',
+          borrowedDate: new Date(l.issue_date).toLocaleDateString(),
+          returnedDate: l.return_date ? new Date(l.return_date).toLocaleDateString() : 'N/A',
+          rating: 0,
+          status: l.status === 'RETURNED' ? 'Returned' : 'Borrowed',
+          favorite: false,
+        }));
+
+        const mappedReservations = reservations.map((r: any) => ({
+          id: r.id,
+          title: r.book_title,
+          author: r.author,
+          cover_url: r.cover_image_url || 'https://via.placeholder.com/150',
+          borrowedDate: new Date(r.created_at).toLocaleDateString(),
+          returnedDate: 'N/A',
+          rating: 0,
+          status: 'Reserved',
+          favorite: false,
+        }));
+
+        setReadingHistory([...mappedLoans, ...mappedReservations]);
+
+        // Total Fines (Unpaid)
+        const unpaidFines = fines.filter((f: any) => f.status === 'UNPAID');
+        const sumFines = unpaidFines.reduce((acc: number, curr: any) => acc + Number(curr.amount), 0);
+        setTotalFines(sumFines);
+
+      } catch (err) {
+        console.error('Failed to fetch profile stats', err);
+      }
+    };
+    fetchProfileData();
+  }, []);
+
 
   // Notifications State
   const [notifState, setNotifState] = useState({
@@ -43,52 +117,7 @@ export const StudentProfileScreen: React.FC = () => {
   const [historySearch, setHistorySearch] = useState('');
   const [historyFilter, setHistoryFilter] = useState<'ALL' | 'COMPLETED' | 'FAVORITES'>('ALL');
 
-  const READING_HISTORY_ITEMS = [
-    {
-      id: 'h1',
-      title: 'The Architecture of Computer Hardware',
-      author: 'John R. Anderson',
-      cover_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop',
-      borrowedDate: 'Sep 12, 2024',
-      returnedDate: 'Oct 02, 2024',
-      rating: 5,
-      status: 'Returned',
-      favorite: true,
-    },
-    {
-      id: 'h2',
-      title: 'Design Systems Handbook',
-      author: 'Marco Suarez',
-      cover_url: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=300&auto=format&fit=crop',
-      borrowedDate: 'Aug 05, 2024',
-      returnedDate: 'Aug 25, 2024',
-      rating: 4,
-      status: 'Returned',
-      favorite: false,
-    },
-    {
-      id: 'h3',
-      title: 'Algorithms & Data Structures',
-      author: 'Dr. E. Dijkstra',
-      cover_url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=300&auto=format&fit=crop',
-      borrowedDate: 'Jul 10, 2024',
-      returnedDate: 'Jul 28, 2024',
-      rating: 5,
-      status: 'Returned',
-      favorite: true,
-    },
-    {
-      id: 'h4',
-      title: 'Clean Code: A Handbook of Agile Craftsmanship',
-      author: 'Robert C. Martin',
-      cover_url: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=300&auto=format&fit=crop',
-      borrowedDate: 'Jun 01, 2024',
-      returnedDate: 'Jun 20, 2024',
-      rating: 5,
-      status: 'Returned',
-      favorite: true,
-    }
-  ];
+
 
   if (!user) return null;
 
@@ -128,7 +157,7 @@ export const StudentProfileScreen: React.FC = () => {
     }, 500);
   };
 
-  const filteredHistory = READING_HISTORY_ITEMS.filter(item => {
+  const filteredHistory = readingHistory.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(historySearch.toLowerCase()) || item.author.toLowerCase().includes(historySearch.toLowerCase());
     const matchesFilter = historyFilter === 'ALL' || (historyFilter === 'FAVORITES' && item.favorite) || (historyFilter === 'COMPLETED' && item.status === 'Returned');
     return matchesSearch && matchesFilter;
@@ -169,17 +198,17 @@ export const StudentProfileScreen: React.FC = () => {
         {/* User Statistics Row */}
         <View style={s.statsRow}>
           <View style={s.statBox}>
-            <Text style={s.statNum}>12</Text>
+            <Text style={s.statNum}>{readingHistory.length}</Text>
             <Text style={s.statLabel}>Books Read</Text>
           </View>
           <View style={s.statDivider} />
           <View style={s.statBox}>
-            <Text style={s.statNum}>3</Text>
+            <Text style={s.statNum}>{activeLoansCount}</Text>
             <Text style={s.statLabel}>Active Loans</Text>
           </View>
           <View style={s.statDivider} />
           <View style={s.statBox}>
-            <Text style={[s.statNum, { color: '#15803D' }]}>₦0.00</Text>
+            <Text style={[s.statNum, { color: totalFines > 0 ? '#EF4444' : '#15803D' }]}>₦{totalFines.toFixed(2)}</Text>
             <Text style={s.statLabel}>Total Fines</Text>
           </View>
         </View>

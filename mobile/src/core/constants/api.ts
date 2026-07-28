@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
  * Server Configuration
  * Set USE_LOCAL_SERVER to true to test with the local Django server.
  */
-const USE_LOCAL_SERVER = true;
+const USE_LOCAL_SERVER = false;
 // 10.0.2.2 is the default for Android Emulator to reach host localhost.
 // 172.20.10.3 is your host machine's Wi-Fi IP for physical devices.
 const LOCAL_SERVER = Platform.OS === 'android' ? 'http://10.0.2.2:8000' : 'http://172.20.10.3:8000';

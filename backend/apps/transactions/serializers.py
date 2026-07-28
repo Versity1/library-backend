@@ -35,7 +35,13 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 class CheckoutRequestSerializer(serializers.Serializer):
     student_staff_id = serializers.CharField(required=True)
-    qr_code_id = serializers.CharField(required=True)
+    qr_code_id = serializers.CharField(required=False)
+    book_id = serializers.UUIDField(required=False)
+
+    def validate(self, data):
+        if not data.get('qr_code_id') and not data.get('book_id'):
+            raise serializers.ValidationError('Provide either qr_code_id or book_id.')
+        return data
 
 class ReturnRequestSerializer(serializers.Serializer):
     qr_code_id = serializers.CharField(required=False)

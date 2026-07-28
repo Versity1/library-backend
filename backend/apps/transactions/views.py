@@ -22,7 +22,6 @@ class CheckoutView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         student_staff_id = serializer.validated_data['student_staff_id']
-        qr_code_id = serializer.validated_data['qr_code_id']
 
         # Determine the borrower
         is_staff = request.user.role in ['LIBRARIAN', 'ADMIN']
@@ -57,14 +56,35 @@ class CheckoutView(APIView):
                 'error': 'User has outstanding unpaid fines. Please settle fines before borrowing.'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # 3. Check book copy availability
-        try:
-            copy = BookCopy.objects.select_related('book').get(qr_code_id=qr_code_id)
-        except BookCopy.DoesNotExist:
-            return Response({'error': 'Book copy not found for provided QR code.'}, status=status.HTTP_404_NOT_FOUND)
+        qr_code_id = serializer.validated_data.get('qr_code_id')
+        book_id = serializer.validated_data.get('book_id')
 
-        if copy.status != BookCopyStatus.AVAILABLE:
-            return Response({'error': f'Book copy is currently {copy.status.lower()}.'}, status=status.HTTP_400_BAD_REQUEST)
+        # 3. Check book copy availability
+        if qr_code_id:
+            try:
+                copy = BookCopy.objects.select_related('book').get(qr_code_id=qr_code_id)
+            except BookCopy.DoesNotExist:
+                return Response({'error': 'Book copy not found for provided QR code.'}, status=status.HTTP_404_NOT_FOUND)
+
+            if copy.status != BookCopyStatus.AVAILABLE:
+                return Response({'error': f'Book copy is currently {copy.status.lower()}.'}, status=status.HTTP_400_BAD_REQUEST)
+        elif book_id:
+            from apps.catalog.models import Book
+            try:
+                book = Book.objects.get(id=book_id)
+            except Book.DoesNotExist:
+                return Response({'error': 'Book not found.'}, status=status.HTTP_404_NOT_FOUND)
+            
+            if book.available_copies <= 0:
+                return Response({'error': 'No available copies for this book.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Find an available copy, or create a virtual one if inventory says we have copies but records are missing
+            copy = book.copies.filter(status=BookCopyStatus.AVAILABLE).first()
+            if not copy:
+                import uuid
+                # Auto-generate a virtual copy to bridge the gap between inventory count and physical copy records
+                qr_id = f"QR-{book.isbn}-{uuid.uuid4().hex[:8]}"
+                copy = BookCopy.objects.create(book=book, qr_code_id=qr_id, status=BookCopyStatus.AVAILABLE)
 
         # Calculate due date
         loan_days = policy.default_loan_days if policy else 14

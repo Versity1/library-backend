@@ -66,19 +66,9 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
     }
     setActionLoading('borrow');
     try {
-      // Find an available copy from the book's copies array
-      const availableCopy = book.copies?.find((c: any) => c.status === 'AVAILABLE');
-      const qrId = availableCopy?.qr_code_id || (book.copies && book.copies.length > 0 ? book.copies[0].qr_code_id : null);
-      
-      if (!qrId) {
-        Alert.alert('Error', 'No book copy found in system. Please ask a librarian to register copies for this book.');
-        setActionLoading(null);
-        return;
-      }
-
       await apiClient.post(API_ENDPOINTS.TRANSACTIONS.CHECKOUT, {
         student_staff_id: user?.student_staff_id,
-        qr_code_id: qrId,
+        book_id: book.id,
       });
       setBorrowedBookIds(prev => [...prev, book.id]);
       setBooks(prev => prev.map(b => b.id === book.id ? { ...b, available_copies: Math.max(0, b.available_copies - 1) } : b));
@@ -96,18 +86,9 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
   const handleReturn = async (book: Book) => {
     setActionLoading('return');
     try {
-      // Find the borrowed copy from the book's copies array
-      const borrowedCopy = book.copies?.find((c: any) => c.status === 'BORROWED');
-      const qrId = borrowedCopy?.qr_code_id || (book.copies && book.copies.length > 0 ? book.copies[0].qr_code_id : null);
-      
-      if (!qrId) {
-        Alert.alert('Error', 'No book copy found in system.');
-        setActionLoading(null);
-        return;
-      }
-
       await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, {
-        qr_code_id: qrId,
+        book_id: book.id,
+        user_id: user?.id,
       });
       setBorrowedBookIds(prev => prev.filter(id => id !== book.id));
       setBooks(prev => prev.map(b => b.id === book.id ? { ...b, available_copies: b.available_copies + 1 } : b));
