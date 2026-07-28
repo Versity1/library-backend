@@ -4,13 +4,28 @@ from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+    active_loans_count = serializers.SerializerMethodField()
+    fines_amount = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'name', 'role', 'department', 'student_staff_id', 'borrowing_limit', 'is_active', 'created_at']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'name', 'role', 'department', 'student_staff_id', 'borrowing_limit', 'is_active', 'created_at', 'active_loans_count', 'fines_amount']
 
     def get_name(self, obj):
         return obj.get_full_name() or obj.username
+
+    def get_active_loans_count(self, obj):
+        from apps.transactions.models import Transaction, TransactionStatus
+        return Transaction.objects.filter(
+            user=obj, 
+            status__in=[TransactionStatus.BORROWED, TransactionStatus.OVERDUE]
+        ).count()
+
+    def get_fines_amount(self, obj):
+        from apps.fines.models import Fine, FineStatus
+        from django.db.models import Sum
+        total = Fine.objects.filter(user=obj, status=FineStatus.UNPAID).aggregate(total=Sum('amount'))['total']
+        return float(total) if total else 0.0
 
 class AdminUserCreateUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, style={'input_type': 'password'})

@@ -12,79 +12,7 @@ interface SmartCatalogScreenProps {
 
 const CATEGORY_FILTERS = ['All Resources', 'Computer Science', 'Literature', 'Mathematics', 'Economics'];
 
-// Default initial books matching Screenshot 4 & 5 exactly
-const INITIAL_BOOKS: Book[] = [
-  {
-    id: 'b1',
-    isbn: '978-0262033848',
-    title: 'Advanced Data Structures',
-    author: 'Thomas H. Cormen',
-    publisher: 'MIT Press',
-    publication_year: 2022,
-    total_copies: 5,
-    available_copies: 3,
-    location_shelf: 'Shelf CS-102, Main Branch',
-    description: 'A comprehensive guide to algorithm design, analysis, and advanced data structures including skip lists, dynamic trees, and amortized complexity.',
-    cover_image_url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=300&auto=format&fit=crop',
-    created_at: new Date('2022-05-15').toISOString(),
-  },
-  {
-    id: 'b2',
-    isbn: '978-0142437247',
-    title: 'Moby-Dick',
-    author: 'Herman Melville',
-    publisher: 'Penguin Classics',
-    publication_year: 2019,
-    total_copies: 3,
-    available_copies: 0,
-    location_shelf: 'Shelf LIT-304, Main Branch',
-    description: 'The epic saga of Captain Ahab and his relentless, obsessive pursuit of the white whale, exploring themes of fate and humanity.',
-    cover_image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop',
-    created_at: new Date('2019-10-10').toISOString(),
-  },
-  {
-    id: 'b3',
-    isbn: '978-0471433347',
-    title: 'Abstract Algebra',
-    author: 'David S. Dummit',
-    publisher: 'Wiley',
-    publication_year: 2021,
-    total_copies: 2,
-    available_copies: 0,
-    location_shelf: 'Shelf MATH-201, Reference Section',
-    description: 'Fundamental algebraic structures including groups, rings, vector spaces, modules, and Galois theory for modern mathematics.',
-    cover_image_url: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=300&auto=format&fit=crop',
-    created_at: new Date('2021-03-20').toISOString(),
-  },
-  {
-    id: 'b4',
-    isbn: '978-0134610993',
-    title: 'Artificial Intelligence',
-    author: 'Stuart Russell & Peter Norvig',
-    publisher: 'Pearson',
-    publication_year: 2023,
-    total_copies: 4,
-    available_copies: 1,
-    location_shelf: 'Shelf CS-401, Main Branch',
-    description: 'The definitive synthesis of theory and practice in Modern AI systems, machine learning, neural networks, and automated reasoning.',
-    cover_image_url: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=300&auto=format&fit=crop',
-    created_at: new Date('2023-01-12').toISOString(),
-  },
-  {
-    id: 'b5',
-    isbn: '978-0136061694',
-    title: 'The Architecture of Computer Hardware',
-    author: 'John R. Anderson',
-    publisher: 'Wiley',
-    publication_year: 2020,
-    total_copies: 3,
-    available_copies: 2,
-    location_shelf: 'Shelf CS-105, Main Branch',
-    description: 'An accessible introduction to computer system architecture, memory hierarchies, processor instruction pipelines, and parallel compute.',
-    cover_image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop',
-    created_at: new Date('2020-08-05').toISOString(),
-  }
-];
+const INITIAL_BOOKS: Book[] = [];
 
 export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNavigateScan }) => {
   const { user } = useAuth();
@@ -107,13 +35,25 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
     setLoading(true);
     try {
       let url = `${API_ENDPOINTS.CATALOG.BOOKS}?search=${encodeURIComponent(searchQuery)}`;
-      const res = await apiClient.get(url);
+      const [res, loansRes] = await Promise.all([
+        apiClient.get(url),
+        apiClient.get(API_ENDPOINTS.TRANSACTIONS.MY_LOANS).catch(() => ({ data: [] }))
+      ]);
+
       const apiBooks = res.data.results || res.data;
-      if (Array.isArray(apiBooks) && apiBooks.length > 0) {
+      if (Array.isArray(apiBooks)) {
         setBooks(apiBooks);
       }
+
+      const rawLoans = loansRes.data?.results || loansRes.data || [];
+      if (Array.isArray(rawLoans)) {
+        const activeBorrowedBookIds = rawLoans
+          .filter((l: any) => (l.status === 'BORROWED' || l.status === 'OVERDUE') && l.book_id)
+          .map((l: any) => l.book_id);
+        setBorrowedBookIds(activeBorrowedBookIds);
+      }
     } catch (err) {
-      console.log('Using default catalog dataset:', err);
+      console.log('Error fetching catalog dataset:', err);
     } finally {
       setLoading(false);
     }
@@ -126,9 +66,18 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
     }
     setActionLoading('borrow');
     try {
-      const qrId = book.copies && book.copies.length > 0 ? book.copies[0].qr_code_id : `QR-${book.isbn || book.id}`;
+      // Find an available copy from the book's copies array
+      const availableCopy = book.copies?.find((c: any) => c.status === 'AVAILABLE');
+      const qrId = availableCopy?.qr_code_id || (book.copies && book.copies.length > 0 ? book.copies[0].qr_code_id : null);
+      
+      if (!qrId) {
+        Alert.alert('Error', 'No book copy found in system. Please ask a librarian to register copies for this book.');
+        setActionLoading(null);
+        return;
+      }
+
       await apiClient.post(API_ENDPOINTS.TRANSACTIONS.CHECKOUT, {
-        student_staff_id: user?.student_staff_id || 'STU-9402',
+        student_staff_id: user?.student_staff_id,
         qr_code_id: qrId,
       });
       setBorrowedBookIds(prev => [...prev, book.id]);
@@ -147,7 +96,16 @@ export const SmartCatalogScreen: React.FC<SmartCatalogScreenProps> = ({ onNaviga
   const handleReturn = async (book: Book) => {
     setActionLoading('return');
     try {
-      const qrId = book.copies && book.copies.length > 0 ? book.copies[0].qr_code_id : `QR-${book.isbn || book.id}`;
+      // Find the borrowed copy from the book's copies array
+      const borrowedCopy = book.copies?.find((c: any) => c.status === 'BORROWED');
+      const qrId = borrowedCopy?.qr_code_id || (book.copies && book.copies.length > 0 ? book.copies[0].qr_code_id : null);
+      
+      if (!qrId) {
+        Alert.alert('Error', 'No book copy found in system.');
+        setActionLoading(null);
+        return;
+      }
+
       await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, {
         qr_code_id: qrId,
       });

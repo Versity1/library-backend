@@ -5,12 +5,14 @@ from apps.transactions.models import Transaction
 
 class FineStatus(models.TextChoices):
     UNPAID = 'UNPAID', 'Unpaid'
+    PENDING_VERIFICATION = 'PENDING_VERIFICATION', 'Pending Verification'
     PAID = 'PAID', 'Paid'
     WAIVED = 'WAIVED', 'Waived'
 
 class Fine(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE, related_name='fine')
+    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE, related_name='fine', null=True, blank=True)
+    reason = models.CharField(max_length=255, null=True, blank=True, help_text="Reason for manual fine")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='fines')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     overdue_days = models.IntegerField(default=1)
@@ -28,6 +30,7 @@ class PaymentMethod(models.TextChoices):
     DIGITAL_WALLET = 'DIGITAL_WALLET', 'Digital Wallet'
     CARD = 'CARD', 'Credit/Debit Card'
     CASH = 'CASH', 'Cash at Desk'
+    MANUAL_BANK_TRANSFER = 'MANUAL_BANK_TRANSFER', 'Manual Bank Transfer'
 
 class PaymentRecord(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -36,6 +39,8 @@ class PaymentRecord(models.Model):
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=30, choices=PaymentMethod.choices, default=PaymentMethod.DIGITAL_WALLET)
     transaction_reference = models.CharField(max_length=100, unique=True)
+    payment_slip = models.ImageField(upload_to='payment_slips/', null=True, blank=True)
+    is_verified = models.BooleanField(default=False)
     paid_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

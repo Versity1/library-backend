@@ -14,7 +14,7 @@ from apps.policies.models import InstitutionPolicy
 from apps.fines.models import Fine, FineStatus
 
 class CheckoutView(APIView):
-    permission_classes = [IsLibrarian]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         serializer = CheckoutRequestSerializer(data=request.data)
@@ -24,10 +24,17 @@ class CheckoutView(APIView):
         student_staff_id = serializer.validated_data['student_staff_id']
         qr_code_id = serializer.validated_data['qr_code_id']
 
-        try:
-            borrower = User.objects.get(student_staff_id=student_staff_id)
-        except User.DoesNotExist:
-            return Response({'error': 'Student/Staff user not found.'}, status=status.HTTP_404_NOT_FOUND)
+        # Determine the borrower
+        is_staff = request.user.role in ['LIBRARIAN', 'ADMIN']
+        if is_staff:
+            # Librarians can checkout for any student
+            try:
+                borrower = User.objects.get(student_staff_id=student_staff_id)
+            except User.DoesNotExist:
+                return Response({'error': 'Student/Staff user not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Students can only checkout for themselves
+            borrower = request.user
 
         # 1. Check borrowing limits
         active_loans_count = Transaction.objects.filter(
@@ -84,27 +91,50 @@ class CheckoutView(APIView):
         return Response(TransactionSerializer(loan).data, status=status.HTTP_201_CREATED)
 
 class ReturnView(APIView):
-    permission_classes = [IsLibrarian]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         serializer = ReturnRequestSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        qr_code_id = serializer.validated_data['qr_code_id']
+        qr_code_id = serializer.validated_data.get('qr_code_id')
+        book_id = serializer.validated_data.get('book_id')
+        user_id = serializer.validated_data.get('user_id')
 
-        try:
-            copy = BookCopy.objects.select_related('book').get(qr_code_id=qr_code_id)
-        except BookCopy.DoesNotExist:
-            return Response({'error': 'Book copy not found.'}, status=status.HTTP_404_NOT_FOUND)
+        is_staff = request.user.role in ['LIBRARIAN', 'ADMIN']
 
-        loan = Transaction.objects.filter(
-            book_copy=copy,
-            status__in=[TransactionStatus.BORROWED, TransactionStatus.OVERDUE]
-        ).first()
+        if qr_code_id:
+            # Lookup by QR code
+            try:
+                copy = BookCopy.objects.select_related('book').get(qr_code_id=qr_code_id)
+            except BookCopy.DoesNotExist:
+                return Response({'error': 'Book copy not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            loan_query = Transaction.objects.filter(
+                book_copy=copy,
+                status__in=[TransactionStatus.BORROWED, TransactionStatus.OVERDUE]
+            )
+            if not is_staff:
+                loan_query = loan_query.filter(user=request.user)
+
+            loan = loan_query.first()
+        else:
+            # Lookup by book_id + user_id
+            loan_query = Transaction.objects.filter(
+                book_copy__book_id=book_id,
+                user_id=user_id,
+                status__in=[TransactionStatus.BORROWED, TransactionStatus.OVERDUE]
+            ).select_related('book_copy__book')
+            if not is_staff:
+                loan_query = loan_query.filter(user=request.user)
+
+            loan = loan_query.first()
 
         if not loan:
-            return Response({'error': 'No active loan found for this book copy.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'No active loan found for this book.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        copy = loan.book_copy
 
         now = timezone.now()
         loan.return_date = now
@@ -155,6 +185,9 @@ class MyLoansView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        user_id = self.request.query_params.get('user_id')
+        if user_id and self.request.user.role in ['LIBRARIAN', 'ADMIN']:
+            return Transaction.objects.filter(user_id=user_id).order_by('-issue_date')
         return Transaction.objects.filter(user=self.request.user).order_by('-issue_date')
 
 class OverdueLoansView(generics.ListAPIView):

@@ -140,18 +140,40 @@ class FulfillReservationView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        policy = None
-        hold_hours = 48
-        try:
-            from apps.policies.models import InstitutionPolicy
-            policy = InstitutionPolicy.objects.filter(role=res.user.role).first()
-            if policy:
-                hold_hours = policy.reservation_hold_hours
-        except Exception:
-            pass
+        # Find an available copy to check out
+        from apps.catalog.models import BookCopy, BookCopyStatus
+        copy = BookCopy.objects.filter(book=res.book, status=BookCopyStatus.AVAILABLE).first()
+        if not copy:
+            return Response({'error': 'No available copies to fulfill this reservation.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        res.status = ReservationStatus.READY_FOR_PICKUP
-        res.expiry_date = timezone.now() + timedelta(hours=hold_hours)
+        # Create the transaction
+        from apps.transactions.models import Transaction, TransactionStatus
+        from django.utils import timezone
+        from datetime import timedelta
+        from apps.policies.models import InstitutionPolicy
+        
+        policy = InstitutionPolicy.objects.filter(role=res.user.role).first()
+        loan_days = policy.default_loan_days if policy else 14
+        due_date = timezone.now() + timedelta(days=loan_days)
+
+        loan = Transaction.objects.create(
+            user=res.user,
+            book_copy=copy,
+            issued_by=request.user,
+            due_date=due_date,
+            status=TransactionStatus.BORROWED
+        )
+
+        # Update Copy & Catalog stock
+        copy.status = BookCopyStatus.BORROWED
+        copy.save()
+
+        book = copy.book
+        if book.available_copies > 0:
+            book.available_copies -= 1
+            book.save()
+
+        res.status = ReservationStatus.FULFILLED
         res.save()
 
         return Response(ReservationSerializer(res).data, status=status.HTTP_200_OK)

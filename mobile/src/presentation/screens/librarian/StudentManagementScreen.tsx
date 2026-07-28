@@ -3,6 +3,7 @@ import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, ActivityInd
 import { Search, QrCode, UserPlus, MoreVertical, BookOpen, ShieldAlert, X, User, Edit, DollarSign, Trash2, ShieldX, ShieldCheck, Clock } from 'lucide-react-native';
 import { apiClient } from '../../../core/utils/http';
 import { API_ENDPOINTS } from '../../../core/constants/api';
+import { Transaction } from '../../../domain/types';
 import { ScannerScreen } from '../shared/ScannerScreen';
 import { LibraryAccessLogsScreen } from './LibraryAccessLogsScreen';
 
@@ -16,6 +17,8 @@ export interface StudentItem {
   fines_amount?: number;
   avatar_url?: string;
   initials?: string;
+  email?: string;
+  phone?: string;
 }
 
 const INITIAL_STUDENTS: StudentItem[] = [
@@ -63,6 +66,9 @@ export const StudentManagementScreen: React.FC = () => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isFineOpen, setIsFineOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [studentLoans, setStudentLoans] = useState<Transaction[]>([]);
+  const [loadingLoans, setLoadingLoans] = useState(false);
 
   // Form States
   const [newStudent, setNewStudent] = useState({ name: '', student_id: '', department: 'Dept. of CS' });
@@ -92,10 +98,12 @@ export const StudentManagementScreen: React.FC = () => {
             student_id: u.student_staff_id || `2024-00${u.id}`,
             department: u.department || 'Dept. of CS',
             status: u.is_active === false ? 'Suspended' : 'Active',
-            borrowed_count: u.borrowing_limit || 0,
+            borrowed_count: u.active_loans_count || 0,
             fines_amount: u.fines_amount ? parseFloat(u.fines_amount) : 0,
             avatar_url: u.avatar_url,
             initials: init,
+            email: u.email || '',
+            phone: u.phone || '+1 (555) 000-0000', // Backend doesn't return phone right now, placeholder
           };
         });
         setStudents(mapped);
@@ -104,6 +112,22 @@ export const StudentManagementScreen: React.FC = () => {
       console.log('[StudentManagement] Error fetching from backend API:', e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePressStudent = async (st: StudentItem) => {
+    setSelectedStudent(st);
+    setIsDetailsOpen(true);
+    setLoadingLoans(true);
+    try {
+      const res = await apiClient.get(`${API_ENDPOINTS.TRANSACTIONS.MY_LOANS}?user_id=${st.id}`);
+      const data = Array.isArray(res.data) ? res.data : (res.data.results || []);
+      setStudentLoans(data);
+    } catch (e) {
+      console.log('Error fetching student loans', e);
+      setStudentLoans([]);
+    } finally {
+      setLoadingLoans(false);
     }
   };
 
@@ -199,13 +223,27 @@ export const StudentManagementScreen: React.FC = () => {
     }
   };
 
-  const handleApplyFine = () => {
+  const handleApplyFine = async () => {
     if (!selectedStudent) return;
     const amount = parseFloat(fineAmount) || 0;
-    setStudents(prev => prev.map(st => st.id === selectedStudent.id ? { ...st, fines_amount: amount } : st));
-    setIsFineOpen(false);
-    setSelectedStudent(null);
-    Alert.alert('Fine Updated', `Fine of ₦${amount.toFixed(2)} applied.`);
+    
+    try {
+      await apiClient.post('/fines/apply/', {
+        user_id: selectedStudent.id,
+        amount: amount,
+        reason: 'Manual Fine from Librarian'
+      });
+      Alert.alert('Fine Updated', `Fine of ₦${amount.toFixed(2)} applied successfully.`);
+      fetchStudents();
+    } catch (e) {
+      console.log('Error applying fine', e);
+      Alert.alert('Error', 'Could not apply fine to backend.');
+      // Fallback
+      setStudents(prev => prev.map(st => st.id === selectedStudent.id ? { ...st, fines_amount: amount } : st));
+    } finally {
+      setIsFineOpen(false);
+      setSelectedStudent(null);
+    }
   };
 
   const handleDeleteStudent = async (st: StudentItem) => {
@@ -288,7 +326,7 @@ export const StudentManagementScreen: React.FC = () => {
         ) : (
           <View style={s.listGap}>
             {filteredStudents.map(st => (
-              <View key={st.id} style={s.card}>
+              <TouchableOpacity key={st.id} style={s.card} activeOpacity={0.8} onPress={() => handlePressStudent(st)}>
               {/* Header Info Row */}
               <View style={s.cardTopRow}>
                 {st.avatar_url ? (
@@ -332,14 +370,14 @@ export const StudentManagementScreen: React.FC = () => {
 
                 {st.fines_amount && st.fines_amount > 0 ? (
                   <Text style={s.finesText}>₦{st.fines_amount.toFixed(2)} Fines</Text>
-                ) : (
+                ) : st.borrowed_count > 0 ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <BookOpen size={16} color="#0F172A" />
                     <Text style={s.borrowedText}>{st.borrowed_count} Borrowed</Text>
                   </View>
-                )}
+                ) : null}
               </View>
-            </View>
+              </TouchableOpacity>
           ))}
         </View>
       )}
@@ -494,6 +532,51 @@ export const StudentManagementScreen: React.FC = () => {
         </View>
       </Modal>
 
+      {/* Student Details Modal */}
+      <Modal visible={isDetailsOpen} transparent animationType="slide">
+        <View style={s.modalOverlayDark}>
+          <View style={s.bottomSheet}>
+            <View style={s.sheetHeader}>
+              <Text style={s.sheetTitle}>{selectedStudent?.name}</Text>
+              <TouchableOpacity onPress={() => setIsDetailsOpen(false)} style={{ padding: 4 }}>
+                <X size={20} color="#64748B" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+              <Text style={s.sheetSectionTitle}>Contact Details</Text>
+              <View style={s.contactCard}>
+                <Text style={s.contactText}>Email: {selectedStudent?.email}</Text>
+                <Text style={s.contactText}>Phone: {selectedStudent?.phone}</Text>
+                <Text style={s.contactText}>ID: {selectedStudent?.student_id}</Text>
+                <Text style={s.contactText}>Department: {selectedStudent?.department}</Text>
+              </View>
+
+              <Text style={[s.sheetSectionTitle, { marginTop: 24 }]}>Borrowed Books</Text>
+              {loadingLoans ? (
+                <ActivityIndicator size="small" color="#0A192F" style={{ marginTop: 20 }} />
+              ) : studentLoans.length === 0 ? (
+                <View style={s.emptyStateBox}>
+                  <Text style={s.emptyStateText}>No borrowings</Text>
+                </View>
+              ) : (
+                studentLoans.map((loan) => (
+                  <View key={loan.id} style={s.loanCard}>
+                    <Text style={s.loanTitle} numberOfLines={2}>{loan.book_title}</Text>
+                    <View style={s.loanDatesRow}>
+                      <Text style={s.loanDateText}>Borrowed: {loan.issue_date ? new Date(loan.issue_date).toLocaleDateString() : 'N/A'}</Text>
+                      <Text style={s.loanDateText}>Due: {loan.due_date ? new Date(loan.due_date).toLocaleDateString() : 'N/A'}</Text>
+                    </View>
+                    <View style={s.loanStatusBadge}>
+                      <Text style={s.loanStatusText}>{loan.status}</Text>
+                    </View>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       {/* Library Access & Gate Check-ins Modal */}
       <Modal visible={isAccessLogsOpen} animationType="slide">
         <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
@@ -568,4 +651,21 @@ const s = StyleSheet.create({
   modalInput: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8, paddingHorizontal: 12, height: 46, fontSize: 14, color: '#0F172A' },
   saveBtn: { backgroundColor: '#0A192F', height: 48, borderRadius: 6, alignItems: 'center', justifyContent: 'center', marginTop: 24 },
   saveBtnText: { color: '#FFF', fontWeight: '700', fontSize: 15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+
+  // Added Styles for Details Modal
+  modalOverlayDark: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+  bottomSheet: { backgroundColor: '#F8FAFC', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%' },
+  sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#FFF', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
+  sheetTitle: { color: '#0A192F', fontSize: 18, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  sheetSectionTitle: { color: '#0A192F', fontSize: 15, fontWeight: '700', marginBottom: 12 },
+  contactCard: { backgroundColor: '#FFF', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', gap: 6 },
+  contactText: { color: '#334155', fontSize: 14 },
+  emptyStateBox: { backgroundColor: '#FFF', padding: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0', borderStyle: 'dashed' },
+  emptyStateText: { color: '#64748B', fontSize: 14, fontStyle: 'italic' },
+  loanCard: { backgroundColor: '#FFF', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 10 },
+  loanTitle: { color: '#0A192F', fontSize: 15, fontWeight: '600', marginBottom: 8 },
+  loanDatesRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  loanDateText: { color: '#64748B', fontSize: 12 },
+  loanStatusBadge: { backgroundColor: '#F1F5F9', alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 },
+  loanStatusText: { color: '#334155', fontSize: 12, fontWeight: '600' }
 });

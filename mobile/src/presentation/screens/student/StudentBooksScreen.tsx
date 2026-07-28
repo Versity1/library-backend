@@ -2,13 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Image, TouchableOpacity, TextInput, Platform, RefreshControl, Modal, Alert } from 'react-native';
 import { BookOpen, Bookmark, Search, Scan, CreditCard, ExternalLink, ShieldAlert, Clock, Bell, X, RotateCcw, CheckCircle2, ArrowLeft, Calendar, Hash, Info } from 'lucide-react-native';
 import { apiClient } from '../../../core/utils/http';
-import { API_ENDPOINTS } from '../../../core/constants/api';
+import { API_ENDPOINTS, API_BASE_URL } from '../../../core/constants/api';
 import { Transaction, Reservation, Fine } from '../../../domain/types';
 import { useAuth } from '../../context/AuthContext';
+
+const getFullImageUrl = (url?: string | null): string | null => {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  const base = API_BASE_URL.replace('/api/v1', '');
+  return `${base}${url.startsWith('/') ? '' : '/'}${url}`;
+};
 
 interface StudentBooksScreenProps {
   onNavigateScan?: () => void;
   onNavigateCatalog?: () => void;
+  onNavigateFines?: () => void;
 }
 
 interface PushNotificationState {
@@ -16,7 +24,11 @@ interface PushNotificationState {
   message: string;
 }
 
-export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNavigateScan, onNavigateCatalog }) => {
+export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ 
+  onNavigateScan, 
+  onNavigateCatalog,
+  onNavigateFines 
+}) => {
   const { user } = useAuth();
   const [loans, setLoans] = useState<Transaction[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -52,10 +64,17 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
         apiClient.get(API_ENDPOINTS.RESERVATIONS.MY_RESERVATIONS),
         apiClient.get(API_ENDPOINTS.FINES.MY_FINES)
       ]);
-      const rawLoans = loansRes.data.results || loansRes.data || [];
-      setLoans(rawLoans);
-      setReservations(resRes.data.results || resRes.data || []);
-      setFines(finesRes.data.results || finesRes.data || []);
+
+      const extractArray = (data: any): any[] => {
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data?.results)) return data.results;
+        if (Array.isArray(data?.data)) return data.data;
+        return [];
+      };
+
+      setLoans(extractArray(loansRes.data));
+      setReservations(extractArray(resRes.data));
+      setFines(extractArray(finesRes.data));
     } catch (error) {
       console.log('Error fetching books data:', error);
     } finally {
@@ -128,7 +147,19 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
   };
 
   // Only show active loans borrowed by the student
-  const activeLoans = loans.filter(l => l.status === 'BORROWED' || l.status === 'OVERDUE');
+  const activeLoans = loans.filter(l => {
+    const status = l.status ? String(l.status).toUpperCase() : '';
+    const isBorrowed = status === 'BORROWED' || status === 'OVERDUE';
+    if (!isBorrowed) return false;
+
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (l.book_title && l.book_title.toLowerCase().includes(q)) ||
+      (l.author && l.author.toLowerCase().includes(q)) ||
+      (l.isbn && l.isbn.toLowerCase().includes(q))
+    );
+  });
   const activeReservations = reservations.filter(r => r.status === 'PENDING' || r.status === 'READY_FOR_PICKUP');
   const totalFines = fines.reduce((sum, f) => sum + (f.status === 'UNPAID' ? Number(f.amount) : 0), 0);
 
@@ -207,13 +238,13 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
         </View>
 
         {/* Current Fines Card */}
-        <View style={s.finesCard}>
+        <TouchableOpacity style={s.finesCard} onPress={onNavigateFines}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <CreditCard size={20} color="#64748B" />
             <Text style={s.finesLabel}>Current Fines</Text>
           </View>
           <Text style={s.finesValue}>₦{totalFines.toFixed(2)}</Text>
-        </View>
+        </TouchableOpacity>
 
         {/* Currently Borrowed Section Header */}
         <View style={s.sectionHeader}>
@@ -231,7 +262,7 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
             {activeLoans.map(item => (
               <TouchableOpacity key={item.id} onPress={() => setSelectedLoan(item)} style={s.borrowCard} activeOpacity={0.85}>
                 <View style={s.coverWrapper}>
-                  <Image source={{ uri: item.cover_image_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop' }} style={s.borrowCover} resizeMode="cover" />
+                  <Image source={{ uri: getFullImageUrl(item.cover_image_url) || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop' }} style={s.borrowCover} resizeMode="cover" />
                   
                   {/* Status Badges */}
                   {item.request_status === 'PENDING_EXTENSION' || item.request_status === 'PENDING_RETURN' ? (
@@ -254,7 +285,7 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
                   <Text style={s.borrowAuthor} numberOfLines={1}>{item.author}</Text>
                   
                   <View style={s.borrowFooterRow}>
-                    <Text style={s.dueLabelText}>Due: {item.due_date ? new Date(item.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Oct 24'}</Text>
+                    <Text style={s.dueLabelText}>Due: {item.due_date ? new Date(item.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A'}</Text>
                     <View style={s.tapPillBtn}>
                       <Text style={s.tapPillText}>Details</Text>
                     </View>
@@ -294,7 +325,7 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
               {/* Cover Photo */}
               <View style={s.modalCoverCard}>
                 <Image 
-                  source={{ uri: selectedLoan.cover_image_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop' }} 
+                  source={{ uri: getFullImageUrl(selectedLoan.cover_image_url) || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop' }} 
                   style={s.modalCoverImage} 
                   resizeMode="cover"
                 />
@@ -354,7 +385,7 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
                   <Calendar size={16} color="#3B82F6" style={{ marginBottom: 6 }} />
                   <Text style={s.metaLabel}>Issue Date</Text>
                   <Text style={s.metaValue}>
-                    {selectedLoan.issue_date ? new Date(selectedLoan.issue_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Oct 10, 2026'}
+                    {selectedLoan.issue_date ? new Date(selectedLoan.issue_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                   </Text>
                 </View>
 
@@ -362,7 +393,7 @@ export const StudentBooksScreen: React.FC<StudentBooksScreenProps> = ({ onNaviga
                   <Clock size={16} color="#EAB308" style={{ marginBottom: 6 }} />
                   <Text style={s.metaLabel}>Due Date</Text>
                   <Text style={s.metaValue}>
-                    {selectedLoan.due_date ? new Date(selectedLoan.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Oct 24, 2026'}
+                    {selectedLoan.due_date ? new Date(selectedLoan.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                   </Text>
                 </View>
 

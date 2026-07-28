@@ -12,12 +12,14 @@ import { OperationsDashboardScreen } from './src/presentation/screens/librarian/
 import { LibrarianInventoryScreen } from './src/presentation/screens/librarian/LibrarianInventoryScreen';
 import { StudentManagementScreen } from './src/presentation/screens/librarian/StudentManagementScreen';
 import { ReservationManagementScreen } from './src/presentation/screens/librarian/ReservationManagementScreen';
+import { PaymentsVerificationScreen } from './src/presentation/screens/librarian/PaymentsVerificationScreen';
+import { FinesAndPaymentsScreen } from './src/presentation/screens/student/FinesAndPaymentsScreen';
 import { ScannerScreen } from './src/presentation/screens/shared/ScannerScreen';
 import { StrategicOverviewScreen } from './src/presentation/screens/admin/StrategicOverviewScreen';
 import { InstitutionPoliciesScreen } from './src/presentation/screens/admin/InstitutionPoliciesScreen';
 import { AdminUserManagementScreen } from './src/presentation/screens/admin/AdminUserManagementScreen';
 import { AdminSystemSettingsScreen } from './src/presentation/screens/admin/AdminSystemSettingsScreen';
-import { BookOpen, Bookmark, QrCode, User, Search, Bell, Settings, TrendingUp, Users, ShieldCheck, LayoutGrid, Archive } from 'lucide-react-native';
+import { BookOpen, Bookmark, QrCode, User, Search, Bell, Settings, TrendingUp, Users, ShieldCheck, LayoutGrid, Archive, CreditCard } from 'lucide-react-native';
 
 interface TabBtnProps {
   active: boolean;
@@ -40,8 +42,8 @@ const TabBtn: React.FC<TabBtnProps> = ({ active, label, icon, onPress }) => (
 const MainApp: React.FC = () => {
   const { user, loading, logout } = useAuth();
   const [showSplash, setShowSplash] = useState(true);
-  const [studentTab, setStudentTab] = useState<'CATALOG' | 'MY_BOOKS' | 'SCAN' | 'PROFILE'>('MY_BOOKS');
-  const [librarianTab, setLibrarianTab] = useState<'REQUESTS' | 'INVENTORY' | 'USERS' | 'PROFILE'>('REQUESTS');
+  const [studentTab, setStudentTab] = useState<'CATALOG' | 'MY_BOOKS' | 'SCAN' | 'PROFILE' | 'FINES'>('MY_BOOKS');
+  const [librarianTab, setLibrarianTab] = useState<'REQUESTS' | 'INVENTORY' | 'USERS' | 'PAYMENTS' | 'PROFILE'>('REQUESTS');
   const [adminTab, setAdminTab] = useState<'OVERVIEW' | 'POLICIES' | 'USERS' | 'BOOKS' | 'SYSTEM'>('OVERVIEW');
 
   const handleSplashComplete = () => {
@@ -77,14 +79,17 @@ const MainApp: React.FC = () => {
           <StudentBooksScreen 
             onNavigateScan={() => setStudentTab('SCAN')} 
             onNavigateCatalog={() => setStudentTab('CATALOG')} 
+            onNavigateFines={() => setStudentTab('FINES')}
           />
         );
       case 'SCAN': 
         return <ScannerScreen />;
       case 'PROFILE': 
         return <StudentProfileScreen />;
+      case 'FINES':
+        return <FinesAndPaymentsScreen />;
       default: 
-        return <StudentBooksScreen onNavigateScan={() => setStudentTab('SCAN')} onNavigateCatalog={() => setStudentTab('CATALOG')} />;
+        return <StudentBooksScreen onNavigateScan={() => setStudentTab('SCAN')} onNavigateCatalog={() => setStudentTab('CATALOG')} onNavigateFines={() => setStudentTab('FINES')} />;
     }
   };
 
@@ -96,6 +101,8 @@ const MainApp: React.FC = () => {
         return <LibrarianInventoryScreen />;
       case 'USERS': 
         return <StudentManagementScreen />;
+      case 'PAYMENTS':
+        return <PaymentsVerificationScreen />;
       case 'PROFILE': 
         return <StudentProfileScreen />;
       default: 
@@ -119,6 +126,7 @@ const MainApp: React.FC = () => {
       if (librarianTab === 'REQUESTS') return 'Borrowing Requests';
       if (librarianTab === 'INVENTORY') return 'Inventory Management';
       if (librarianTab === 'USERS') return 'Student Management';
+      if (librarianTab === 'PAYMENTS') return 'Pending Payments';
       return 'Librarian Profile';
     }
     if (adminTab === 'OVERVIEW') return 'Executive Overview';
@@ -161,6 +169,12 @@ const MainApp: React.FC = () => {
             icon={<Bookmark size={22} color={studentTab === 'MY_BOOKS' ? '#0A192F' : '#94A3B8'} />} 
           />
           <TabBtn 
+            active={studentTab === 'FINES'} 
+            label="Fines" 
+            onPress={() => setStudentTab('FINES')}
+            icon={<CreditCard size={22} color={studentTab === 'FINES' ? '#0A192F' : '#94A3B8'} />} 
+          />
+          <TabBtn 
             active={studentTab === 'SCAN'} 
             label="Scan" 
             onPress={() => setStudentTab('SCAN')}
@@ -175,7 +189,7 @@ const MainApp: React.FC = () => {
         </View>
       )}
 
-      {/* Librarian Bottom Navigation Bar matching Screenshots 1, 2, 3 */}
+      {/* Librarian Bottom Navigation Bar */}
       {user.role === 'LIBRARIAN' && (
         <View style={s.lightNavBar}>
           <TabBtn 
@@ -195,6 +209,12 @@ const MainApp: React.FC = () => {
             label="Users" 
             onPress={() => setLibrarianTab('USERS')}
             icon={<Users size={22} color={librarianTab === 'USERS' ? '#0A192F' : '#94A3B8'} />} 
+          />
+          <TabBtn 
+            active={librarianTab === 'PAYMENTS'} 
+            label="Payments" 
+            onPress={() => setLibrarianTab('PAYMENTS')}
+            icon={<CreditCard size={22} color={librarianTab === 'PAYMENTS' ? '#0A192F' : '#94A3B8'} />} 
           />
           <TabBtn 
             active={librarianTab === 'PROFILE'} 

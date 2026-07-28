@@ -1,17 +1,22 @@
 import { Platform } from 'react-native';
 
 /**
- * Production Server Configuration
+ * Server Configuration
+ * Set USE_LOCAL_SERVER to true to test with the local Django server.
  */
+const USE_LOCAL_SERVER = true;
+// 10.0.2.2 is the default for Android Emulator to reach host localhost.
+// 172.20.10.3 is your host machine's Wi-Fi IP for physical devices.
+const LOCAL_SERVER = Platform.OS === 'android' ? 'http://10.0.2.2:8000' : 'http://172.20.10.3:8000';
 const PRODUCTION_SERVER = 'https://learnpro.com.ng';
 
 const getApiHost = (): string => {
-  return PRODUCTION_SERVER;
+  return USE_LOCAL_SERVER ? LOCAL_SERVER : PRODUCTION_SERVER;
 };
 
 export const API_BASE_URL = `${getApiHost()}/api/v1`;
 
-console.log('[API] Connected to Production Server:', API_BASE_URL);
+console.log(`[API] Connected to ${USE_LOCAL_SERVER ? 'Local Dev' : 'Production'} Server:`, API_BASE_URL);
 
 export const API_ENDPOINTS = {
   AUTH: {
@@ -50,6 +55,9 @@ export const API_ENDPOINTS = {
     MY_FINES: '/fines/my-fines/',
     PAY: '/fines/pay/',
     RECEIPT: (id: string) => `/fines/receipt/${id}/`,
+    APPLY: '/fines/apply/',
+    PENDING_PAYMENTS: '/fines/pending-payments/',
+    VERIFY_PAYMENT: (id: string) => `/fines/verify-payment/${id}/`,
   },
   POLICIES: {
     LIST: '/policies/',

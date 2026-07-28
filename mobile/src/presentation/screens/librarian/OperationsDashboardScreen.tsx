@@ -160,34 +160,11 @@ export const OperationsDashboardScreen: React.FC<DashboardProps> = ({ onNavigate
               </View>
             ))
           )}
-          {/* Mock Fallback Data matching Figma */}
+          )}
           {pendingReservations.length === 0 && !loading && (
-            <>
-              <View style={s.prCard}>
-                <View style={s.prImagePlace}><Text style={s.prImageText}>Book</Text></View>
-                <View style={s.prDetails}>
-                  <Text style={s.prTitle} numberOfLines={1}>The Structure of Scientific Rev...</Text>
-                  <Text style={s.prAuthor}>Thomas S. Kuhn</Text>
-                  <View style={s.prMetaRow}>
-                    <View style={s.availBadge}><Text style={s.availText}>AVAILABLE</Text></View>
-                    <Text style={s.prStudentId}>Student ID: 94821</Text>
-                  </View>
-                </View>
-                <TouchableOpacity style={s.approveBtn}><Text style={s.approveText}>Approve</Text></TouchableOpacity>
-              </View>
-              <View style={s.prCard}>
-                <View style={s.prImagePlace}><Text style={s.prImageText}>Book</Text></View>
-                <View style={s.prDetails}>
-                  <Text style={s.prTitle} numberOfLines={1}>Data Structures and Algorithms</Text>
-                  <Text style={s.prAuthor}>Alfred V. Aho</Text>
-                  <View style={s.prMetaRow}>
-                    <View style={s.availBadge}><Text style={s.availText}>AVAILABLE</Text></View>
-                    <Text style={s.prStudentId}>Student ID: 11024</Text>
-                  </View>
-                </View>
-                <TouchableOpacity style={s.approveBtn}><Text style={s.approveText}>Approve</Text></TouchableOpacity>
-              </View>
-            </>
+            <View style={{ padding: 16, alignItems: 'center' }}>
+              <Text style={{ color: '#64748B' }}>No pending reservations.</Text>
+            </View>
           )}
         </View>
 
@@ -221,24 +198,9 @@ export const OperationsDashboardScreen: React.FC<DashboardProps> = ({ onNavigate
               ))
             )}
             
-            {/* Mock Fallback Data matching Figma */}
             {overdueList.length === 0 && !loading && (
-              <View style={s.odCard}>
-                <View style={s.odAvatar}><Text style={s.odAvatarText}>JS</Text></View>
-                <View style={s.odDetails}>
-                  <Text style={s.odTitle} numberOfLines={2}>Introduction to Algorithms</Text>
-                  <Text style={s.odBorrower}>John Smith</Text>
-                </View>
-                <View style={s.odRight}>
-                  <View style={s.lateWarning}>
-                    <AlertCircle size={14} color="#DC2626" />
-                    <Text style={s.lateText}>3 Days Late</Text>
-                  </View>
-                  <TouchableOpacity style={s.remindBtn}>
-                    <Bell size={14} color="#0F172A" />
-                    <Text style={s.remindText}>Remind</Text>
-                  </TouchableOpacity>
-                </View>
+              <View style={{ padding: 16, alignItems: 'center' }}>
+                <Text style={{ color: '#64748B' }}>No overdue items.</Text>
               </View>
             )}
           </View>

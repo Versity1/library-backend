@@ -17,49 +17,11 @@ export interface BorrowRequestItem {
   cover_image_url: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   qr_code_id?: string;
+  book_id?: string;
+  user_id?: string;
 }
 
-const INITIAL_REQUESTS: BorrowRequestItem[] = [
-  {
-    id: 'req_1',
-    student_name: 'Alex Johnson',
-    student_id: '2024-042',
-    date: 'Oct 24',
-    book_title: 'The Architecture of Computer Hardware',
-    author: 'John R. Anderson',
-    request_type: 'RETURN',
-    status_badge: 'Pending Return Verification',
-    cover_image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop',
-    status: 'PENDING',
-    qr_code_id: 'QR-CS-001',
-  },
-  {
-    id: 'req_2',
-    student_name: 'Samantha Reed',
-    student_id: '2023-118',
-    date: 'Oct 24',
-    book_title: 'Algorithms & Data Structures',
-    author: 'Dr. E. Dijkstra',
-    request_type: 'EXTENSION',
-    status_badge: 'Due Soon',
-    cover_image_url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=300&auto=format&fit=crop',
-    status: 'PENDING',
-    qr_code_id: 'QR-CS-002',
-  },
-  {
-    id: 'req_3',
-    student_name: 'Marcus Chen',
-    student_id: '2025-003',
-    date: 'Oct 23',
-    book_title: 'Design Systems Handbook',
-    author: 'Marco Suarez',
-    request_type: 'BORROW',
-    status_badge: 'Available',
-    cover_image_url: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=300&auto=format&fit=crop',
-    status: 'PENDING',
-    qr_code_id: 'QR-CS-003',
-  }
-];
+const INITIAL_REQUESTS: BorrowRequestItem[] = [];
 
 export const ReservationManagementScreen: React.FC = () => {
   const [requests, setRequests] = useState<BorrowRequestItem[]>(INITIAL_REQUESTS);
@@ -94,6 +56,8 @@ export const ReservationManagementScreen: React.FC = () => {
           cover_image_url: r.cover_image_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=300&auto=format&fit=crop',
           status: (r.status === 'FULFILLED' ? 'APPROVED' : r.status === 'CANCELLED' || r.status === 'EXPIRED' ? 'REJECTED' : 'PENDING') as any,
           qr_code_id: r.qr_code_id || `QR-${r.id}`,
+          book_id: r.book,
+          user_id: r.user,
         }));
         setRequests(mapped);
       }
@@ -108,11 +72,12 @@ export const ReservationManagementScreen: React.FC = () => {
     setProcessingId(req.id);
     try {
       await apiClient.post(API_ENDPOINTS.RESERVATIONS.FULFILL, { reservation_id: req.id });
-    } catch (e) {
-      console.log('Borrowing approved');
-    } finally {
       setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'APPROVED' } : r));
       Alert.alert('Borrowing Approved', `Book "${req.book_title}" has been issued to student ${req.student_name}.`);
+    } catch (e) {
+      console.log('Borrowing error', e);
+      Alert.alert('Error', 'Failed to approve borrowing request.');
+    } finally {
       setProcessingId(null);
     }
   };
@@ -120,25 +85,44 @@ export const ReservationManagementScreen: React.FC = () => {
   const handleApproveReturn = async (req: BorrowRequestItem) => {
     setProcessingId(req.id);
     try {
-      await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, { qr_code_id: req.qr_code_id || 'QR-CS-001' });
+      if (!req.book_id || !req.user_id) {
+         if (req.qr_code_id) {
+           await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, { qr_code_id: req.qr_code_id });
+         } else {
+           throw new Error('No QR code or Book/User ID available for return.');
+         }
+      } else {
+         await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RETURN, { book_id: req.book_id, user_id: req.user_id });
+      }
     } catch (e) {
-      console.log('Return approved');
-    } finally {
-      setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'APPROVED' } : r));
-      Alert.alert('Return Approved', `Return of "${req.book_title}" from ${req.student_name} approved and restocked into active inventory.`);
+      console.log('Return error', e);
+      Alert.alert('Error', 'Failed to approve return.');
       setProcessingId(null);
+      return;
+    } 
+    
+    try {
+       // Also mark the reservation as fulfilled since it's processed
+       await apiClient.post(API_ENDPOINTS.RESERVATIONS.FULFILL, { reservation_id: req.id });
+    } catch(e) {
+       console.log('Reservation fulfillment failed', e);
     }
+    
+    setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'APPROVED' } : r));
+    Alert.alert('Return Approved', `Return of "${req.book_title}" from ${req.student_name} approved and restocked into active inventory.`);
+    setProcessingId(null);
   };
 
   const handleApproveExtension = async (req: BorrowRequestItem) => {
     setProcessingId(req.id);
     try {
       await apiClient.post(API_ENDPOINTS.TRANSACTIONS.RENEW, { transaction_id: req.id });
-    } catch (e) {
-      console.log('Extension approved');
-    } finally {
       setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'APPROVED' } : r));
       Alert.alert('Extension Approved', `Due date for "${req.book_title}" extended by 14 days for ${req.student_name}.`);
+    } catch (e: any) {
+      console.log('Extension error', e);
+      Alert.alert('Error', e.response?.data?.error || 'Failed to approve extension.');
+    } finally {
       setProcessingId(null);
     }
   };
@@ -147,11 +131,12 @@ export const ReservationManagementScreen: React.FC = () => {
     setProcessingId(req.id);
     try {
       await apiClient.post(API_ENDPOINTS.RESERVATIONS.CANCEL, { reservation_id: req.id });
-    } catch (e) {
-      console.log('Request rejected');
-    } finally {
       setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'REJECTED' } : r));
       Alert.alert('Request Declined', `${req.request_type} request for "${req.book_title}" has been declined.`);
+    } catch (e) {
+      console.log('Reject error', e);
+      Alert.alert('Error', 'Failed to decline request.');
+    } finally {
       setProcessingId(null);
     }
   };
